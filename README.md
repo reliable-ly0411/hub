@@ -4,7 +4,7 @@
 
 **[下载 Eleven（Android 9 / 11 模拟器实测）](Eleven-CM12.1-Standalone-Android9-11-tested.zip)**
 
-版本 `2.0-cm12.1-standalone.2`。解压后安装 `Eleven.apk`，允许读取本地音乐。要看频谱，在十一的 **设置 → Show music visualization** 打开开关，再允许系统的音频权限。普通播放不需要麦克风权限。
+版本 `2.0-cm12.1-standalone.2`。解压后安装 `Eleven.apk`，允许读取本地音乐。要看频谱，在 Eleven 的 **设置 → Show music visualization** 打开开关，再允许系统的音频权限。普通播放不需要麦克风权限。
 
 使用 [同期 CM12.1 Eleven 源码](https://github.com/CyanogenMod/android_packages_apps_Eleven/tree/9d2f80421cde3459362f94ea5de7a311081c5894)，不是从 XT910 的 RC5.6 ROM 提取的原 APK。原版界面、32 柱频谱绘制、动画与配色逻辑保留；青色来自原版封面或占位图配色，并非固定为青色。
 
