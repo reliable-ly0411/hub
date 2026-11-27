@@ -1,0 +1,53 @@
+Eleven 扩展压测与年代、格式兼容 · GPD · 2026-11-27
+
+v11 在 Android 11 扩大搜索压力后发现新的崩溃。96 首库、48 次列表滑动后，第一次搜索输入 S 即由旧的 MediaStore /audio/search/fancy/S URI 触发 UnsupportedOperationException。堆栈与 PID 退出都有记录。这个崩溃可单独复现，和 Android 9 人工注入超大封面的 Canvas 异常属于不同路径。
+v12 在 Android 10 及以上使用公开的歌曲、艺人、专辑集合进行搜索。Android 9 在原接口可用时保留原查询。v11→v12 源码差异只有版本声明、搜索加载器和新增的公共搜索类。原频谱、播放实现以及封面安全代码未改。
+v12 的 Android 9 压测还复现了系统 MediaSession 二次缩图把极端封面的短边缩到 0，导致 MusicPlayerHandler 退出。明确选择 16×30000 PNG 封面的 StressArt003 也得到了同一堆栈。v13 单独限制系统通知和锁屏封面，极端长图不提交给系统。超大方图、横长图和竖长图三项定点测试均通过。
+v11 Android 11 失败轮 PID 3628 → 4463。
+
+版本 / 系统 / 阶段 | 主列表滑动 | 搜索轮数 / 字符 | PSS KiB | 原生堆 KiB | Dalvik 堆 KiB | FD | PID
+v11 / API 28 / stock | 144 | 12 / 130 | 47,899–56,568 | 29,980–35,163 | 6,371–7,297 | 72–75 | 6445→6445
+v11 / API 28 / raw | 96 | 38 / 453 | 49,348–64,428 | 33,651–43,697 | 6,255–7,518 | 72–78 | 10030→12987
+v13 / API 28 / raw | 96 | 38 / 453 | 44,646–64,772 | 27,440–41,264 | 6,021–7,650 | 75–78 | 23015→25698
+v13 / API 30 / compat | 48 | 7 / 74 | 49,335–67,495 | 33,324–44,848 | 14,086–16,313 | 84–89 | 10578→10578
+
+Android 9 基础曲库 320 首，160 首有封面、160 首无封面。两轮原图压测各有 18 个原始 MediaStore 入口和 18 个旧磁盘缓存键，原始输入哈希及磁盘读取日志在证据包中。原图阶段 PID 变化发生在脚本有意重启后，用于复测磁盘热缓存。每轮播放阶段还包括 5 次前后台往返、媒体键暂停和恢复，并在播放中搜索。Android 11 基础曲库 96 首。
+
+年代与格式矩阵使用同一段合成音源、每个样本约 18 秒。1958–2024 是测试的标签年份，不代表真实年代录音。播放通过要求 Eleven 的搜索结果实际启动该曲且暂停前进度超过 300 ms。年份列来自系统 MediaStore，空值表示本次系统读库未返回该标签。
+
+样本 | 标签年 | 格式 | Android 9 | Android 11 | MediaStore 读取的年份（9 / 11）
+EraQA01.wav | 1958 | PCM 16-bit mono 22.05 kHz | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA02.aiff | 1976 | AIFF PCM 16-bit big endian | 未入库 | 入库，播放未确认 | — / —
+EraQA03.wav | 1986 | CD-rate WAV PCM 16-bit | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA04.mp2 | 1993 | MPEG Layer II at 192 kbps | 未入库 | 入库，播放未确认 | — / —
+EraQA05.mp3 | 1997 | MP3 ID3v1 only, 32 kbps mono | 播放，进度推进 | 播放，进度推进 | 1997 / 1997
+EraQA06.mp3 | 2001 | MP3 ID3v2.3 CBR with Chinese title | 播放，进度推进 | 播放，进度推进 | 2001 / 2001
+EraQA07.wma | 2002 | WMA v2 in ASF | 未入库 | 入库，播放未确认 | — / —
+EraQA08.ogg | 2005 | Ogg Vorbis | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA09.m4a | 2007 | AAC-LC in M4A | 播放，进度推进 | 播放，进度推进 | 2007 / 2007
+EraQA10.aac | 2009 | AAC-LC raw ADTS | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA11.flac | 2010 | FLAC 16-bit 44.1 kHz | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA12.m4a | 2013 | Apple Lossless in M4A | 未入库 | 入库，播放未确认 | — / 2013
+EraQA13.opus | 2016 | Ogg Opus with .opus extension | 未入库 | 播放，进度推进 | — / —
+EraQA14.ogg | 2016 | Ogg Opus with .ogg extension | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA15.flac | 2023 | FLAC 24-bit 96 kHz | 播放，进度推进 | 播放，进度推进 | — / —
+EraQA16.mp3 | 2024 | MP3 ID3v2.4 VBR with Chinese title | 播放，进度推进 | 播放，进度推进 | — / —
+
+API 28 直接预览对照（v11）。
+EraQA02.aiff AIFF PCM 16-bit big endian · 直接预览未启动。
+EraQA04.mp2 MPEG Layer II at 192 kbps · 直接预览未启动。
+EraQA07.wma WMA v2 in ASF · 直接预览未启动。
+EraQA12.m4a Apple Lossless in M4A · 直接预览未启动。
+EraQA13.opus Ogg Opus with .opus extension · 预览解码器实际启动。
+EraQA14.ogg Ogg Opus with .ogg extension · 预览解码器实际启动。
+
+API 30 直接预览对照（v13）。
+EraQA02.aiff AIFF PCM 16-bit big endian · 直接预览未启动。
+EraQA04.mp2 MPEG Layer II at 192 kbps · 直接预览未启动。
+EraQA07.wma WMA v2 in ASF · 直接预览未启动。
+EraQA12.m4a Apple Lossless in M4A · 直接预览未启动。
+EraQA14.ogg Ogg Opus with .ogg extension · 预览解码器实际启动。
+
+v13 在 Android 11 上再次验证了原来的青色向上频谱。此轮首次授予录音权限后，暂停并恢复一次才绑定播放会话。五帧、授权截图和 AudioFlinger 记录在频谱证据包中。
+
+v13 APK SHA-256 e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e。仅用 GPD 独立模拟器及合成文件，未验证用户手机、OEM 镜像、真实年代录音、全格式、线上封面、物理音频输出或公开 v9 签名的原位升级。
