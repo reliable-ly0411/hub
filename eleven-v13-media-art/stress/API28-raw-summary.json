@@ -1,0 +1,235 @@
+{
+  "kind": "raw",
+  "api": 28,
+  "apk_sha256": "e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e",
+  "initial_pid": "23015",
+  "list_swipes": 96,
+  "search_chars": 453,
+  "search_swipes": 16,
+  "searches": 38,
+  "background_round_trips": 5,
+  "sampled": [
+    {
+      "name": "raw/cold",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 53982,
+      "native_heap_alloc_kib": 27440,
+      "dalvik_heap_alloc_kib": 7574,
+      "rss_kib": 152784
+    },
+    {
+      "name": "raw/list-1-1-0",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46533,
+      "native_heap_alloc_kib": 29926,
+      "dalvik_heap_alloc_kib": 6548,
+      "rss_kib": 156120
+    },
+    {
+      "name": "raw/list-1-1-1",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 44646,
+      "native_heap_alloc_kib": 29093,
+      "dalvik_heap_alloc_kib": 6519,
+      "rss_kib": 155232
+    },
+    {
+      "name": "raw/list-1-0-0",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 44938,
+      "native_heap_alloc_kib": 29111,
+      "dalvik_heap_alloc_kib": 6539,
+      "rss_kib": 155232
+    },
+    {
+      "name": "raw/list-1-0-1",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46583,
+      "native_heap_alloc_kib": 29516,
+      "dalvik_heap_alloc_kib": 6613,
+      "rss_kib": 156920
+    },
+    {
+      "name": "raw/list-2-1-0",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46967,
+      "native_heap_alloc_kib": 29482,
+      "dalvik_heap_alloc_kib": 6640,
+      "rss_kib": 158320
+    },
+    {
+      "name": "raw/list-2-1-1",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46845,
+      "native_heap_alloc_kib": 30017,
+      "dalvik_heap_alloc_kib": 6563,
+      "rss_kib": 158504
+    },
+    {
+      "name": "raw/list-2-0-0",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46961,
+      "native_heap_alloc_kib": 30054,
+      "dalvik_heap_alloc_kib": 6590,
+      "rss_kib": 158796
+    },
+    {
+      "name": "raw/list-2-0-1",
+      "pid": "23015",
+      "fd": 75,
+      "pss_kib": 46536,
+      "native_heap_alloc_kib": 30191,
+      "dalvik_heap_alloc_kib": 6548,
+      "rss_kib": 158992
+    },
+    {
+      "name": "raw/search-1",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 48197,
+      "native_heap_alloc_kib": 30529,
+      "dalvik_heap_alloc_kib": 6811,
+      "rss_kib": 161920
+    },
+    {
+      "name": "raw/search-7",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 50337,
+      "native_heap_alloc_kib": 31279,
+      "dalvik_heap_alloc_kib": 7079,
+      "rss_kib": 163632
+    },
+    {
+      "name": "raw/search-13",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 50525,
+      "native_heap_alloc_kib": 31054,
+      "dalvik_heap_alloc_kib": 7084,
+      "rss_kib": 163808
+    },
+    {
+      "name": "raw/search-19",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 50791,
+      "native_heap_alloc_kib": 31114,
+      "dalvik_heap_alloc_kib": 7144,
+      "rss_kib": 163628
+    },
+    {
+      "name": "raw/search-25",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 50435,
+      "native_heap_alloc_kib": 31228,
+      "dalvik_heap_alloc_kib": 7086,
+      "rss_kib": 163576
+    },
+    {
+      "name": "raw/search-31",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 50756,
+      "native_heap_alloc_kib": 31263,
+      "dalvik_heap_alloc_kib": 7106,
+      "rss_kib": 164012
+    },
+    {
+      "name": "raw/playing",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 59402,
+      "native_heap_alloc_kib": 38632,
+      "dalvik_heap_alloc_kib": 6605,
+      "rss_kib": 174544
+    },
+    {
+      "name": "raw/foreground-1",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 63158,
+      "native_heap_alloc_kib": 40216,
+      "dalvik_heap_alloc_kib": 6593,
+      "rss_kib": 179132
+    },
+    {
+      "name": "raw/foreground-2",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 64686,
+      "native_heap_alloc_kib": 40136,
+      "dalvik_heap_alloc_kib": 6592,
+      "rss_kib": 180388
+    },
+    {
+      "name": "raw/foreground-3",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 58566,
+      "native_heap_alloc_kib": 40250,
+      "dalvik_heap_alloc_kib": 6592,
+      "rss_kib": 172504
+    },
+    {
+      "name": "raw/foreground-4",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 63194,
+      "native_heap_alloc_kib": 40502,
+      "dalvik_heap_alloc_kib": 6606,
+      "rss_kib": 178516
+    },
+    {
+      "name": "raw/foreground-5",
+      "pid": "23015",
+      "fd": 77,
+      "pss_kib": 64772,
+      "native_heap_alloc_kib": 40493,
+      "dalvik_heap_alloc_kib": 6608,
+      "rss_kib": 180092
+    },
+    {
+      "name": "raw/warm-end",
+      "pid": "23015",
+      "fd": 78,
+      "pss_kib": 60569,
+      "native_heap_alloc_kib": 41264,
+      "dalvik_heap_alloc_kib": 6995,
+      "rss_kib": 174300
+    },
+    {
+      "name": "raw/warm-disk-new-process",
+      "pid": "25698",
+      "fd": 75,
+      "pss_kib": 58780,
+      "native_heap_alloc_kib": 32100,
+      "dalvik_heap_alloc_kib": 6021,
+      "rss_kib": 169728
+    },
+    {
+      "name": "raw/warm-disk-search",
+      "pid": "25698",
+      "fd": 78,
+      "pss_kib": 55641,
+      "native_heap_alloc_kib": 33519,
+      "dalvik_heap_alloc_kib": 7650,
+      "rss_kib": 165404
+    }
+  ],
+  "expected_process_restarts": 1,
+  "media_key_pause_resume": true,
+  "legacy_reads": 18,
+  "disk_restart_pid": "25698",
+  "final_pid": "25698",
+  "eleven_crash_or_anr": false
+}
