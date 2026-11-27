@@ -1,0 +1,11 @@
+{
+  "api": 30,
+  "apk_sha256": "e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e",
+  "initial_pid": "16306",
+  "final_pid": "16306",
+  "sample": "Eleven Teal Sample 03",
+  "playback_confirmed": true,
+  "session_visualizer": true,
+  "frames": 5,
+  "eleven_crash_or_anr": false
+}

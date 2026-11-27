@@ -1,0 +1,6 @@
+Android 11 原频谱回归
+
+候选 APK SHA-256 e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e
+Eleven 播放 Eleven Teal Sample 03，可视化器绑定非全局播放会话。连续采集 5 帧，PID 16306 一直保持。
+此轮首次授予录音权限后，AudioFlinger 尚未列出播放会话的 Visualizer，使用媒体键暂停再恢复后完成绑定。
+画面显示从底边向上变化的青色频谱。相邻帧在频谱区域变化的采样列数为 32, 32, 31, 32。
