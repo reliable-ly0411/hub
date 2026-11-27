@@ -1,0 +1,57 @@
+{
+  "api": 30,
+  "apk_sha256": "e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e",
+  "tracks": [
+    {
+      "prefix": "EraQA02",
+      "file": "EraQA02.aiff",
+      "profile": "AIFF PCM 16-bit big endian",
+      "pid": "15766",
+      "preview_activity_focused": false,
+      "decoder_started": false,
+      "outcome": "preview_playback_unconfirmed",
+      "crash_or_anr": false
+    },
+    {
+      "prefix": "EraQA04",
+      "file": "EraQA04.mp2",
+      "profile": "MPEG Layer II at 192 kbps",
+      "pid": "15864",
+      "preview_activity_focused": false,
+      "decoder_started": false,
+      "outcome": "preview_playback_unconfirmed",
+      "crash_or_anr": false
+    },
+    {
+      "prefix": "EraQA07",
+      "file": "EraQA07.wma",
+      "profile": "WMA v2 in ASF",
+      "pid": "15966",
+      "preview_activity_focused": false,
+      "decoder_started": false,
+      "outcome": "preview_playback_unconfirmed",
+      "crash_or_anr": false
+    },
+    {
+      "prefix": "EraQA12",
+      "file": "EraQA12.m4a",
+      "profile": "Apple Lossless in M4A",
+      "pid": "16061",
+      "preview_activity_focused": false,
+      "decoder_started": false,
+      "outcome": "preview_playback_unconfirmed",
+      "crash_or_anr": false
+    },
+    {
+      "prefix": "EraQA14",
+      "file": "EraQA14.ogg",
+      "profile": "Ogg Opus with .ogg extension",
+      "pid": "16163",
+      "preview_activity_focused": true,
+      "decoder_started": true,
+      "outcome": "preview_decoder_active",
+      "crash_or_anr": false
+    }
+  ],
+  "eleven_crash_or_anr": false
+}
