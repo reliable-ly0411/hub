@@ -1,0 +1,377 @@
+{
+  "api": 30,
+  "apk_sha256": "ffc077f1455bad00e41c487c7d68cfeedd79b9a7e931f260566618a0ef43bdd9",
+  "initial_pid": "8185",
+  "tracks": [
+    {
+      "prefix": "EraQA01",
+      "file": "EraQA01.wav",
+      "title": "EraQA01",
+      "year_requested": 1958,
+      "profile": "PCM 16-bit mono 22.05 kHz",
+      "codec": "pcm_s16le",
+      "options": [
+        "-ar",
+        "22050",
+        "-ac",
+        "1"
+      ],
+      "sha256": "fa33dda4bc7ba0f8d387dd621ad03411e2ab1b72171c894a18037172d0bad3e1",
+      "audio_row": "Row: 96 _id=115, _display_name=EraQA01.wav, title=EraQA01, year=NULL, is_music=1, duration=18000, mime_type=audio/x-wav",
+      "year_seen": null,
+      "title_seen": "EraQA01",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 1388,
+      "metadata": [
+        "EraQA01, <unknown>, ElevenEraFormatQA\r"
+      ]
+    },
+    {
+      "prefix": "EraQA02",
+      "file": "EraQA02.aiff",
+      "title": "EraQA02",
+      "year_requested": 1976,
+      "profile": "AIFF PCM 16-bit big endian",
+      "codec": "pcm_s16be",
+      "options": [
+        "-ar",
+        "44100",
+        "-ac",
+        "2"
+      ],
+      "sha256": "cadd20acc2b4c9c6dd1edfae08c65818d77dd461e6b0f76a23fe62067bda3ebf",
+      "audio_row": "Row: 97 _id=116, _display_name=EraQA02.aiff, title=EraQA02, year=NULL, is_music=1, duration=NULL, mime_type=audio/x-aiff",
+      "year_seen": null,
+      "title_seen": "EraQA02",
+      "outcome": "playback_unconfirmed",
+      "metadata": []
+    },
+    {
+      "prefix": "EraQA03",
+      "file": "EraQA03.wav",
+      "title": "EraQA03",
+      "year_requested": 1986,
+      "profile": "CD-rate WAV PCM 16-bit",
+      "codec": "pcm_s16le",
+      "options": [
+        "-ar",
+        "44100",
+        "-ac",
+        "2"
+      ],
+      "sha256": "2514b5a2741b34da3b8d10b14fce4379264a9e3e18cd2ed1c79de90a334e105c",
+      "audio_row": "Row: 98 _id=117, _display_name=EraQA03.wav, title=EraQA03, year=NULL, is_music=1, duration=18000, mime_type=audio/x-wav",
+      "year_seen": null,
+      "title_seen": "EraQA03",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 1179,
+      "metadata": [
+        "EraQA03, <unknown>, ElevenEraFormatQA\r"
+      ]
+    },
+    {
+      "prefix": "EraQA04",
+      "file": "EraQA04.mp2",
+      "title": "EraQA04",
+      "year_requested": 1993,
+      "profile": "MPEG Layer II at 192 kbps",
+      "codec": "mp2",
+      "options": [
+        "-ar",
+        "48000",
+        "-b:a",
+        "192k"
+      ],
+      "sha256": "b7a3b9e9c808b3bfeb0011207bd1e35cc1a9e88b33765166d54fa1f001c3b641",
+      "audio_row": "Row: 99 _id=118, _display_name=EraQA04.mp2, title=EraQA04, year=NULL, is_music=1, duration=18000, mime_type=audio/mpeg",
+      "year_seen": null,
+      "title_seen": "EraQA04",
+      "outcome": "playback_unconfirmed",
+      "metadata": [
+        "EraQA04, <unknown>, ElevenEraFormatQA\r"
+      ]
+    },
+    {
+      "prefix": "EraQA05",
+      "file": "EraQA05.mp3",
+      "title": "EraQA05",
+      "year_requested": 1997,
+      "profile": "MP3 ID3v1 only, 32 kbps mono",
+      "codec": "libmp3lame",
+      "options": [
+        "-ar",
+        "22050",
+        "-ac",
+        "1",
+        "-b:a",
+        "32k",
+        "-id3v2_version",
+        "0",
+        "-write_id3v1",
+        "1"
+      ],
+      "sha256": "9ad735891fb88896901ed9eff0b721be57acc79603fa534c017bce46b6734d54",
+      "audio_row": "Row: 100 _id=119, _display_name=EraQA05.mp3, title=EraQA05, year=1997, is_music=1, duration=18077, mime_type=audio/mpeg",
+      "year_seen": "1997",
+      "title_seen": "EraQA05",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 619,
+      "metadata": [
+        "EraQA05, Eleven Era QA, Era QA 5\r"
+      ]
+    },
+    {
+      "prefix": "EraQA06",
+      "file": "EraQA06.mp3",
+      "title": "EraQA06 \u65e7\u7248\u5408\u8f91",
+      "year_requested": 2001,
+      "profile": "MP3 ID3v2.3 CBR with Chinese title",
+      "codec": "libmp3lame",
+      "options": [
+        "-ar",
+        "44100",
+        "-b:a",
+        "128k",
+        "-id3v2_version",
+        "3"
+      ],
+      "sha256": "6dcf66373f77c6435cdb56cd60db4ca4e88e8611c1b732e8681ef39b96bcfa4c",
+      "audio_row": "Row: 101 _id=120, _display_name=EraQA06.mp3, title=EraQA06 \u65e7\u7248\u5408\u8f91, year=2001, is_music=1, duration=18051, mime_type=audio/mpeg",
+      "year_seen": "2001",
+      "title_seen": "EraQA06 \u65e7\u7248\u5408\u8f91",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 639,
+      "metadata": [
+        "EraQA06 \u65e7\u7248\u5408\u8f91, Eleven Era QA, Era QA 6\r"
+      ]
+    },
+    {
+      "prefix": "EraQA07",
+      "file": "EraQA07.wma",
+      "title": "EraQA07",
+      "year_requested": 2002,
+      "profile": "WMA v2 in ASF",
+      "codec": "wmav2",
+      "options": [
+        "-b:a",
+        "96k"
+      ],
+      "sha256": "a710431b1d72773551e466b38013c44ab06efd987feb23aa89696529f98e88bf",
+      "audio_row": "Row: 102 _id=121, _display_name=EraQA07.wma, title=EraQA07, year=NULL, is_music=1, duration=NULL, mime_type=audio/x-ms-wma",
+      "year_seen": null,
+      "title_seen": "EraQA07",
+      "outcome": "playback_unconfirmed",
+      "metadata": []
+    },
+    {
+      "prefix": "EraQA08",
+      "file": "EraQA08.ogg",
+      "title": "EraQA08",
+      "year_requested": 2005,
+      "profile": "Ogg Vorbis",
+      "codec": "libvorbis",
+      "options": [
+        "-q:a",
+        "4"
+      ],
+      "sha256": "5810b71605aee1fa9828b1f9198d0a7b402852add3ca67f0aeb478b583f76b8d",
+      "audio_row": "Row: 103 _id=122, _display_name=EraQA08.ogg, title=EraQA08, year=NULL, is_music=1, duration=18000, mime_type=audio/ogg",
+      "year_seen": null,
+      "title_seen": "EraQA08",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 863,
+      "metadata": [
+        "EraQA08, Eleven Era QA, Era QA 8\r"
+      ]
+    },
+    {
+      "prefix": "EraQA09",
+      "file": "EraQA09.m4a",
+      "title": "EraQA09",
+      "year_requested": 2007,
+      "profile": "AAC-LC in M4A",
+      "codec": "aac",
+      "options": [
+        "-profile:a",
+        "aac_low",
+        "-b:a",
+        "128k",
+        "-movflags",
+        "+faststart"
+      ],
+      "sha256": "0ab34898ec0aa367a0196d911f87f4d70159142dbc6c3db1a98981ea77944198",
+      "audio_row": "Row: 104 _id=123, _display_name=EraQA09.m4a, title=EraQA09, year=2007, is_music=1, duration=18023, mime_type=audio/mp4",
+      "year_seen": "2007",
+      "title_seen": "EraQA09",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 374,
+      "metadata": [
+        "EraQA09, Eleven Era QA, Era QA 9\r"
+      ]
+    },
+    {
+      "prefix": "EraQA10",
+      "file": "EraQA10.aac",
+      "title": "EraQA10",
+      "year_requested": 2009,
+      "profile": "AAC-LC raw ADTS",
+      "codec": "aac",
+      "options": [
+        "-profile:a",
+        "aac_low",
+        "-b:a",
+        "96k"
+      ],
+      "sha256": "d5a916421f1cf62a3769cd1a67e15ff49122e238cf7c7996f0eb54f56fe3669e",
+      "audio_row": "Row: 105 _id=124, _display_name=EraQA10.aac, title=EraQA10, year=NULL, is_music=1, duration=18042, mime_type=audio/aac-adts",
+      "year_seen": null,
+      "title_seen": "EraQA10",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 618,
+      "metadata": [
+        "EraQA10, <unknown>, ElevenEraFormatQA\r"
+      ]
+    },
+    {
+      "prefix": "EraQA11",
+      "file": "EraQA11.flac",
+      "title": "EraQA11",
+      "year_requested": 2010,
+      "profile": "FLAC 16-bit 44.1 kHz",
+      "codec": "flac",
+      "options": [
+        "-ar",
+        "44100",
+        "-sample_fmt",
+        "s16"
+      ],
+      "sha256": "a1165908dc775673e3cf746906bf2eddd86066a945298fcd46c8227ab84d3a26",
+      "audio_row": "Row: 106 _id=125, _display_name=EraQA11.flac, title=EraQA11, year=NULL, is_music=1, duration=18000, mime_type=audio/flac",
+      "year_seen": null,
+      "title_seen": "EraQA11",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 1079,
+      "metadata": [
+        "EraQA11, Eleven Era QA, Era QA 11\r"
+      ]
+    },
+    {
+      "prefix": "EraQA12",
+      "file": "EraQA12.m4a",
+      "title": "EraQA12",
+      "year_requested": 2013,
+      "profile": "Apple Lossless in M4A",
+      "codec": "alac",
+      "options": [
+        "-ar",
+        "44100",
+        "-sample_fmt",
+        "s16p"
+      ],
+      "sha256": "c4f8e5e41ce225a7cedbacb3aa7898a777313f5d2eadcb16d3aafcf3b44d187a",
+      "audio_row": "Row: 107 _id=126, _display_name=EraQA12.m4a, title=EraQA12, year=2013, is_music=1, duration=18000, mime_type=audio/mp4",
+      "year_seen": "2013",
+      "title_seen": "EraQA12",
+      "outcome": "playback_unconfirmed",
+      "metadata": [
+        "EraQA12, Eleven Era QA, Era QA 12\r"
+      ]
+    },
+    {
+      "prefix": "EraQA13",
+      "file": "EraQA13.opus",
+      "title": "EraQA13",
+      "year_requested": 2016,
+      "profile": "Ogg Opus with .opus extension",
+      "codec": "libopus",
+      "options": [
+        "-ar",
+        "48000",
+        "-b:a",
+        "80k"
+      ],
+      "sha256": "064f82cdae106f3cb3099f366ab0af8f02787815764b482a83646f932e8c0340",
+      "audio_row": "Row: 108 _id=127, _display_name=EraQA13.opus, title=EraQA13, year=NULL, is_music=1, duration=18000, mime_type=audio/ogg",
+      "year_seen": null,
+      "title_seen": "EraQA13",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 930,
+      "metadata": [
+        "EraQA13, Eleven Era QA, Era QA 13\r"
+      ]
+    },
+    {
+      "prefix": "EraQA14",
+      "file": "EraQA14.ogg",
+      "title": "EraQA14",
+      "year_requested": 2016,
+      "profile": "Ogg Opus with .ogg extension",
+      "codec": "libopus",
+      "options": [
+        "-ar",
+        "48000",
+        "-b:a",
+        "80k"
+      ],
+      "sha256": "578c7a5c77e1d98d411ab2c55aaea183e952da75375fe8298f22d02a4164218f",
+      "audio_row": "Row: 109 _id=128, _display_name=EraQA14.ogg, title=EraQA14, year=NULL, is_music=1, duration=18000, mime_type=audio/ogg",
+      "year_seen": null,
+      "title_seen": "EraQA14",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 938,
+      "metadata": [
+        "EraQA14, Eleven Era QA, Era QA 14\r"
+      ]
+    },
+    {
+      "prefix": "EraQA15",
+      "file": "EraQA15.flac",
+      "title": "EraQA15",
+      "year_requested": 2023,
+      "profile": "FLAC 24-bit 96 kHz",
+      "codec": "flac",
+      "options": [
+        "-ar",
+        "96000",
+        "-sample_fmt",
+        "s32",
+        "-bits_per_raw_sample",
+        "24"
+      ],
+      "sha256": "25fb501190fa47df77755cd8a0fed9288e2eea2a68603557ce9b4f320e44f846",
+      "audio_row": "Row: 110 _id=129, _display_name=EraQA15.flac, title=EraQA15, year=NULL, is_music=1, duration=18000, mime_type=audio/flac",
+      "year_seen": null,
+      "title_seen": "EraQA15",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 1212,
+      "metadata": [
+        "EraQA15, Eleven Era QA, Era QA 15\r"
+      ]
+    },
+    {
+      "prefix": "EraQA16",
+      "file": "EraQA16.mp3",
+      "title": "EraQA16 \u65b0\u7248\u5408\u8f91",
+      "year_requested": 2024,
+      "profile": "MP3 ID3v2.4 VBR with Chinese title",
+      "codec": "libmp3lame",
+      "options": [
+        "-q:a",
+        "2",
+        "-id3v2_version",
+        "4"
+      ],
+      "sha256": "10b5666c7d98fbcd9877b443c3674f8df70ba69da6efcf9e9595627a66edd95b",
+      "audio_row": "Row: 111 _id=130, _display_name=EraQA16.mp3, title=EraQA16 \u65b0\u7248\u5408\u8f91, year=NULL, is_music=1, duration=18051, mime_type=audio/mpeg",
+      "year_seen": null,
+      "title_seen": "EraQA16 \u65b0\u7248\u5408\u8f91",
+      "outcome": "played_and_advanced",
+      "position_ms_at_pause": 893,
+      "metadata": [
+        "EraQA16 \u65b0\u7248\u5408\u8f91, Eleven Era QA, Era QA 16\r"
+      ]
+    }
+  ],
+  "final_pid": "8185",
+  "eleven_crash_or_anr": false
+}
