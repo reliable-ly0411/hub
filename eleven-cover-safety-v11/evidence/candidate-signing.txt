@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Eleven Cover Safety Internal QA
+Signer #1 certificate SHA-256 digest: a3396d24dd81c79e13eaf4764ba202aeeb31ab0fc0d83b166aa7514a699a1776
+Signer #1 certificate SHA-1 digest: fd8f11281a635f50546ca3c92b4bf90f7af8c66a
+Signer #1 certificate MD5 digest: ce234bc7297b4b0848794f7b45566d81
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: e15049ded5e25c4d771e4ffbb3f71abc74790f65a751b3efc8ac82cd203e0643
+Signer #1 public key SHA-1 digest: 9620be434faaa7ad6526c2d19220418d98c8406b
+Signer #1 public key MD5 digest: 7ff66b55a8685d59b7bb70a723a182db

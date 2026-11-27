@@ -1,0 +1,4 @@
+Eleven CM12.1 cover safety candidate v11 for isolated QA.
+Start from CyanogenMod commit 9d2f80421cde3459362f94ea5de7a311081c5894. Apply the compatibility patch from the Hub v9 ZIP first. Apply Eleven-v9-to-v11-cover-safety.patch second.
+The Windows tools use a staging directory with src, deps, baseline and build. Copy the Python tools to the staging root, unpack the upstream source as src and supply the v9 notices under baseline (especially icu4j-LICENSE.txt). The build and SDK pins follow upstream/BUILD.md. Supply your own signing material for releases.
+The supplied APK uses the GPD QA certificate. It requires a clean install in the isolated test environment when the currently installed app uses the Hub v9 certificate. Upgrade and data migration are unverified.

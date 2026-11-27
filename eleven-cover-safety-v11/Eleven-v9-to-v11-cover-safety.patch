@@ -1,0 +1,1151 @@
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -16,8 +16,8 @@
+  -->
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.cyanogenmod.eleven"
+-    android:versionCode="9"
+-    android:versionName="2.0-cm12.1-standalone.2" >
++    android:versionCode="11"
++    android:versionName="2.0-cm12.1-standalone.3-cover-safety-candidate" >
+ 
+     <uses-sdk
+         android:minSdkVersion="21"
+diff --git a/src/com/cyanogenmod/eleven/cache/ArtworkExecutor.java b/src/com/cyanogenmod/eleven/cache/ArtworkExecutor.java
+new file mode 100644
+--- /dev/null
++++ b/src/com/cyanogenmod/eleven/cache/ArtworkExecutor.java
+@@ -0,0 +1,18 @@
++/* Copyright 2026. Licensed under the Apache License, Version 2.0. */
++package com.cyanogenmod.eleven.cache;
++
++import android.os.AsyncTask;
++import java.util.concurrent.ArrayBlockingQueue;
++import java.util.concurrent.ThreadPoolExecutor;
++import java.util.concurrent.TimeUnit;
++
++/** Cover work must not grow Android's shared AsyncTask pool during rapid search. */
++final class ArtworkExecutor {
++    private static final ThreadPoolExecutor POOL = new ThreadPoolExecutor(2, 2, 30,
++            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(32));
++    private ArtworkExecutor() { }
++    static <T> void execute(AsyncTask<T, ?, ?> task, T... args) {
++        POOL.purge();
++        task.executeOnExecutor(POOL, args);
++    }
++}
+diff --git a/src/com/cyanogenmod/eleven/cache/BitmapWorkerTask.java b/src/com/cyanogenmod/eleven/cache/BitmapWorkerTask.java
+--- a/src/com/cyanogenmod/eleven/cache/BitmapWorkerTask.java
++++ b/src/com/cyanogenmod/eleven/cache/BitmapWorkerTask.java
+@@ -55,6 +55,8 @@
+ 
+     protected boolean mScaleImgToView;
+ 
++    protected final int mDecodeEdge;
++
+     /**
+      * The key used to store cached entries
+      */
+@@ -95,6 +97,7 @@
+         mFromDrawable = fromDrawable;
+ 
+         mScaleImgToView = scaleImgToView;
++        mDecodeEdge = SafeArtwork.viewEdge(imageView);
+     }
+ 
+     /**
+@@ -121,7 +124,7 @@
+      */
+     protected Bitmap getBitmapInBackground(final String... params) {
+         return ImageWorker.getBitmapInBackground(mContext, mImageCache, mKey,
+-                params[1], params[0], Long.valueOf(params[2]), mImageType);
++                params[1], params[0], Long.valueOf(params[2]), mImageType, mDecodeEdge);
+     }
+ 
+     /**
+diff --git a/src/com/cyanogenmod/eleven/cache/BlurBitmapWorkerTask.java b/src/com/cyanogenmod/eleven/cache/BlurBitmapWorkerTask.java
+--- a/src/com/cyanogenmod/eleven/cache/BlurBitmapWorkerTask.java
++++ b/src/com/cyanogenmod/eleven/cache/BlurBitmapWorkerTask.java
+@@ -91,6 +91,8 @@
+ 
+         Bitmap bitmap = getBitmapInBackground(params);
+ 
++        if (isCancelled()) return null;
++        try {
+         ResultContainer result = new ResultContainer();
+ 
+         Bitmap output = null;
+@@ -103,8 +105,10 @@
+             if (input.getWidth() < MIN_BITMAP_SIZE || input.getHeight() < MIN_BITMAP_SIZE) {
+                 float multiplier = Math.max(MIN_BITMAP_SIZE / (float)input.getWidth(),
+                         MIN_BITMAP_SIZE / (float)input.getHeight());
+-                input = input.createScaledBitmap(bitmap, (int)(input.getWidth() * multiplier),
+-                        (int)(input.getHeight() * multiplier), true);
++                multiplier = Math.min(multiplier, SafeArtwork.MAX_EDGE /
++                        (float)Math.max(input.getWidth(), input.getHeight()));
++                input = input.createScaledBitmap(bitmap, Math.max(1, (int)(input.getWidth() * multiplier)),
++                        Math.max(1, (int)(input.getHeight() * multiplier)), true);
+                 // since we created a new bitmap, we can re-use the bitmap for our output
+                 output = input;
+             } else {
+@@ -114,16 +118,25 @@
+ 
+             // run the blur multiple times
+             for (int i = 0; i < NUM_BLUR_RUNS; i++) {
+-                final Allocation inputAlloc = Allocation.createFromBitmap(mRenderScript, input);
+-                final Allocation outputAlloc = Allocation.createTyped(mRenderScript,
++                if (isCancelled()) return null;
++                Allocation inputAlloc = null, outputAlloc = null;
++                ScriptIntrinsicBlur script = null;
++                try {
++                inputAlloc = Allocation.createFromBitmap(mRenderScript, input);
++                outputAlloc = Allocation.createTyped(mRenderScript,
+                         inputAlloc.getType());
+-                final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(mRenderScript,
++                script = ScriptIntrinsicBlur.create(mRenderScript,
+                         Element.U8_4(mRenderScript));
+ 
+                 script.setRadius(BLUR_RADIUS);
+                 script.setInput(inputAlloc);
+                 script.forEach(outputAlloc);
+                 outputAlloc.copyTo(output);
++                } finally {
++                    if (script != null) script.destroy();
++                    if (outputAlloc != null) outputAlloc.destroy();
++                    if (inputAlloc != null) inputAlloc.destroy();
++                }
+ 
+                 // if we run more than 1 blur, the new input should be the old output
+                 input = output;
+@@ -140,6 +153,9 @@
+         }
+ 
+         return null;
++        } catch (OutOfMemoryError | android.renderscript.RSRuntimeException failure) {
++            return null;
++        }
+     }
+ 
+     /**
+@@ -148,7 +164,8 @@
+     @Override
+     protected void onPostExecute(ResultContainer resultContainer) {
+         BlurScrimImage blurScrimImage = mBlurScrimImage.get();
+-        if (blurScrimImage != null) {
++        if (blurScrimImage != null && !isCancelled()
++                && ImageWorker.getBitmapWorkerTask(blurScrimImage) == this) {
+             if (resultContainer == null) {
+                 // if we have no image, then signal the transition to the default state
+                 blurScrimImage.transitionToDefaultState();
+diff --git a/src/com/cyanogenmod/eleven/cache/ImageCache.java b/src/com/cyanogenmod/eleven/cache/ImageCache.java
+--- a/src/com/cyanogenmod/eleven/cache/ImageCache.java
++++ b/src/com/cyanogenmod/eleven/cache/ImageCache.java
+@@ -24,20 +24,16 @@
+ import android.content.res.Configuration;
+ import android.graphics.Bitmap;
+ import android.graphics.Bitmap.CompressFormat;
+-import android.graphics.BitmapFactory;
+ import android.net.Uri;
+ import android.os.AsyncTask;
+ import android.os.Bundle;
+ import android.os.Environment;
+ import android.os.Looper;
+-import android.os.ParcelFileDescriptor;
+ import android.util.Log;
+ 
+ import com.cyanogenmod.eleven.utils.ApolloUtils;
+ 
+ import java.io.File;
+-import java.io.FileDescriptor;
+-import java.io.FileNotFoundException;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.OutputStream;
+@@ -60,7 +56,7 @@
+     /**
+      * Default memory cache size as a percent of device memory class
+      */
+-    private static final float MEM_CACHE_DIVIDER = 0.25f;
++    private static final float MEM_CACHE_DIVIDER = 0.125f;
+ 
+     /**
+      * Default disk cache size 10MB
+@@ -90,7 +86,7 @@
+     /**
+      * Disk LRU cache
+      */
+-    private DiskLruCache mDiskCache;
++    private volatile DiskLruCache mDiskCache;
+ 
+     /**
+      * listeners to the cache state
+@@ -102,7 +98,7 @@
+     /**
+      * Used to temporarily pause the disk cache while scrolling
+      */
+-    public boolean mPauseDiskAccess = false;
++    public volatile boolean mPauseDiskAccess = false;
+     private Object mPauseLock = new Object();
+ 
+     static {
+@@ -124,7 +120,7 @@
+      * @param context The {@link Context} to use
+      * @return A new instance of this class.
+      */
+-    public final static ImageCache getInstance(final Context context) {
++    public synchronized final static ImageCache getInstance(final Context context) {
+         if (sInstance == null) {
+             sInstance = new ImageCache(context.getApplicationContext());
+         }
+@@ -187,8 +183,8 @@
+     public void initLruCache(final Context context) {
+         final ActivityManager activityManager = (ActivityManager)context
+                 .getSystemService(Context.ACTIVITY_SERVICE);
+-        final int lruCacheSize = Math.round(MEM_CACHE_DIVIDER * activityManager.getMemoryClass()
+-                * 1024 * 1024);
++        final int lruCacheSize = Math.min(16 * 1024 * 1024, Math.round(MEM_CACHE_DIVIDER
++                * activityManager.getMemoryClass() * 1024 * 1024));
+         mLruCache = new MemoryCache(lruCacheSize);
+ 
+         // Release some memory as needed
+@@ -292,46 +288,34 @@
+             return;
+         }
+ 
+-        // Add to memory cache
+         addBitmapToMemCache(data, bitmap, replace);
+-
+-        // Add to disk cache
+-        if (mDiskCache != null && !mDiskCache.isClosed()) {
+-            final String key = hashKeyForDisk(data);
+-            OutputStream out = null;
+-            try {
+-                final DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
+-                if (snapshot != null) {
+-                    snapshot.getInputStream(DISK_CACHE_INDEX).close();
+-                }
+-
+-                if (snapshot == null || replace) {
+-                    final DiskLruCache.Editor editor = mDiskCache.edit(key);
+-                    if (editor != null) {
+-                        out = editor.newOutputStream(DISK_CACHE_INDEX);
+-                        bitmap.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, out);
+-                        editor.commit();
+-                        out.close();
+-                        flush();
+-                    }
+-                }
+-            } catch (final IOException e) {
+-                Log.e(TAG, "addBitmapToCache - " + e);
+-            } catch (final IllegalStateException e) {
+-                // if the user clears the cache while we have an async task going we could try
+-                // writing to the disk cache while it isn't ready. Catching here will silently
+-                // fail instead
+-                Log.e(TAG, "addBitmapToCache - " + e);
+-            } finally {
++        final DiskLruCache disk = mDiskCache;
++        if (disk == null || Thread.currentThread().isInterrupted()) return;
++        final String key = hashKeyForDisk(data);
++        DiskLruCache.Editor editor = null;
++        try {
++            try (DiskLruCache.Snapshot snapshot = disk.get(key)) {
++                if (snapshot != null && !replace) return;
++            }
++            editor = disk.edit(key);
++            if (editor == null) return;
++            boolean written;
++            try (OutputStream out = editor.newOutputStream(DISK_CACHE_INDEX)) {
++                written = bitmap.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, out);
++            }
++            if (!written || Thread.currentThread().isInterrupted()) return;
++            editor.commit();
++            editor = null;
++        } catch (IOException | IllegalStateException failure) {
++            Log.w(TAG, "Could not write cover cache", failure);
++        } catch (OutOfMemoryError failure) {
++            Log.w(TAG, "Cover cache compression allocation failed");
++        } finally {
++            if (editor != null) {
+                 try {
+-                    if (out != null) {
+-                        out.close();
+-                        out = null;
+-                    }
+-                } catch (final IOException e) {
+-                    Log.e(TAG, "addBitmapToCache - " + e);
+-                } catch (final IllegalStateException e) {
+-                    Log.e(TAG, "addBitmapToCache - " + e);
++                    editor.abort();
++                } catch (IOException | IllegalStateException ignored) {
++                    // The cache may have been closed while this cover was compressed.
+                 }
+             }
+         }
+@@ -390,43 +374,31 @@
+      * @return The {@link Bitmap} if found in cache, null otherwise
+      */
+     public final Bitmap getBitmapFromDiskCache(final String data) {
+-        if (data == null) {
+-            return null;
+-        }
+-
+-        // Check in the memory cache here to avoid going to the disk cache less
+-        // often
+-        if (getBitmapFromMemCache(data) != null) {
+-            return getBitmapFromMemCache(data);
+-        }
+-
++        return getBitmapFromDiskCache(data, SafeArtwork.MAX_EDGE);
++    }
++
++    public final Bitmap getBitmapFromDiskCache(final String data, final int edge) {
++        if (data == null) return null;
++        Bitmap memory = getBitmapFromMemCache(data);
++        if (memory != null) return memory;
++        return decodeDiskEntry(data, edge);
++    }
++
++    // Read the original disk key with this view's size limit, without sharing full-size memory entries.
++    final Bitmap decodeDiskEntry(final String data, final int edge) {
+         waitUntilUnpaused();
++        final DiskLruCache disk = mDiskCache;
++        if (disk == null || Thread.currentThread().isInterrupted()) return null;
+         final String key = hashKeyForDisk(data);
+-        if (mDiskCache != null) {
+-            InputStream inputStream = null;
+-            try {
+-                final DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
+-                if (snapshot != null) {
+-                    inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
+-                    if (inputStream != null) {
+-                        final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+-                        if (bitmap != null) {
+-                            return bitmap;
+-                        }
+-                    }
+-                }
+-            } catch (final IOException e) {
+-                Log.e(TAG, "getBitmapFromDiskCache - " + e);
+-            } finally {
+-                try {
+-                    if (inputStream != null) {
+-                        inputStream.close();
+-                    }
+-                } catch (final IOException e) {
+-                }
+-            }
+-        }
+-        return null;
++        return SafeArtwork.decode(new SafeArtwork.Source() {
++            public InputStream open() throws IOException {
++                final DiskLruCache.Snapshot snapshot = disk.get(key);
++                if (snapshot == null) return null;
++                return new java.io.FilterInputStream(snapshot.getInputStream(DISK_CACHE_INDEX)) {
++                    @Override public void close() { snapshot.close(); }
++                };
++            }
++        }, edge);
+     }
+ 
+     /**
+@@ -437,12 +409,14 @@
+      * @return The {@link Bitmap} if found in cache, null otherwise
+      */
+     public final Bitmap getCachedBitmap(final String data) {
+-        if (data == null) {
+-            return null;
+-        }
++        return getCachedBitmap(data, SafeArtwork.MAX_EDGE);
++    }
++
++    public final Bitmap getCachedBitmap(final String data, final int edge) {
++        if (data == null) return null;
+         Bitmap cachedImage = getBitmapFromMemCache(data);
+         if (cachedImage == null) {
+-            cachedImage = getBitmapFromDiskCache(data);
++            cachedImage = getBitmapFromDiskCache(data, edge);
+         }
+         if (cachedImage != null) {
+             addBitmapToMemCache(data, cachedImage);
+@@ -461,12 +435,17 @@
+      * @return The artwork for an album
+      */
+     public final Bitmap getCachedArtwork(final Context context, final String data, final long id) {
++        return getCachedArtwork(context, data, id, SafeArtwork.MAX_EDGE);
++    }
++
++    public final Bitmap getCachedArtwork(final Context context, final String data, final long id,
++            final int edge) {
+         if (context == null || data == null) {
+             return null;
+         }
+-        Bitmap cachedImage = getCachedBitmap(data);
++        Bitmap cachedImage = getCachedBitmap(data, edge);
+         if (cachedImage == null && id >= 0) {
+-            cachedImage = getArtworkFromFile(context, id);
++            cachedImage = getArtworkFromFile(context, id, edge);
+         }
+         if (cachedImage != null) {
+             addBitmapToMemCache(data, cachedImage);
+@@ -483,28 +462,15 @@
+      * @return The artwork for an album
+      */
+     public final Bitmap getArtworkFromFile(final Context context, final long albumId) {
+-        if (albumId < 0) {
+-            return null;
+-        }
+-        Bitmap artwork = null;
++        return getArtworkFromFile(context, albumId, SafeArtwork.MAX_EDGE);
++    }
++
++    public final Bitmap getArtworkFromFile(final Context context, final long albumId, int edge) {
++        if (context == null || albumId < 0) return null;
+         waitUntilUnpaused();
+-        try {
+-            final Uri uri = ContentUris.withAppendedId(mArtworkUri, albumId);
+-            final ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver()
+-                    .openFileDescriptor(uri, "r");
+-            if (parcelFileDescriptor != null) {
+-                final FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+-                artwork = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+-            }
+-        } catch (final IllegalStateException e) {
+-            // Log.e(TAG, "IllegalStateExcetpion - getArtworkFromFile - ", e);
+-        } catch (final FileNotFoundException e) {
+-            // Log.e(TAG, "FileNotFoundException - getArtworkFromFile - ", e);
+-        } catch (final OutOfMemoryError evict) {
+-            // Log.e(TAG, "OutOfMemoryError - getArtworkFromFile - ", evict);
+-            evictAll();
+-        }
+-        return artwork;
++        if (Thread.currentThread().isInterrupted()) return null;
++        return SafeArtwork.uri(context.getContentResolver(),
++                ContentUris.withAppendedId(mArtworkUri, albumId), edge);
+     }
+ 
+     /**
+@@ -516,12 +482,11 @@
+ 
+             @Override
+             protected Void doInBackground(final Void... unused) {
+-                if (mDiskCache != null) {
++                final DiskLruCache disk = mDiskCache;
++                if (disk != null) {
+                     try {
+-                        if (!mDiskCache.isClosed()) {
+-                            mDiskCache.flush();
+-                        }
+-                    } catch (final IOException e) {
++                        if (!disk.isClosed()) disk.flush();
++                    } catch (IOException | IllegalStateException e) {
+                         Log.e(TAG, "flush - " + e);
+                     }
+                 }
+@@ -540,10 +505,8 @@
+             protected Void doInBackground(final Void... unused) {
+                 // Clear the disk cache
+                 try {
+-                    if (mDiskCache != null) {
+-                        mDiskCache.delete();
+-                        mDiskCache = null;
+-                    }
++                    final DiskLruCache disk = detachDiskCache();
++                    if (disk != null) disk.delete();
+                 } catch (final IOException e) {
+                     Log.e(TAG, "clearCaches - " + e);
+                 }
+@@ -564,12 +527,10 @@
+ 
+             @Override
+             protected Void doInBackground(final Void... unused) {
+-                if (mDiskCache != null) {
++                final DiskLruCache disk = detachDiskCache();
++                if (disk != null) {
+                     try {
+-                        if (!mDiskCache.isClosed()) {
+-                            mDiskCache.close();
+-                            mDiskCache = null;
+-                        }
++                        disk.close();
+                     } catch (final IOException e) {
+                         Log.e(TAG, "close - " + e);
+                     }
+@@ -579,6 +540,12 @@
+         }, (Void[]) null);
+     }
+ 
++    private synchronized DiskLruCache detachDiskCache() {
++        final DiskLruCache disk = mDiskCache;
++        mDiskCache = null;
++        return disk;
++    }
++
+     /**
+      * Evicts all of the items from the memory cache and lets the system know
+      * now would be a good time to garbage collect
+@@ -594,6 +561,15 @@
+      * @param key The key used to identify which cache entries to delete.
+      */
+     public void removeFromCache(final String key) {
++        if (key == null) return;
++        removeEntry(key);
++        for (int edge = 128; edge <= SafeArtwork.MAX_EDGE; edge <<= 1) {
++            removeEntry(key + "_safeart_" + edge);
++        }
++        flush();
++    }
++
++    private void removeEntry(final String key) {
+         if (key == null) {
+             return;
+         }
+@@ -604,13 +580,11 @@
+ 
+         try {
+             // Remove the disk entry
+-            if (mDiskCache != null) {
+-                mDiskCache.remove(hashKeyForDisk(key));
+-            }
+-        } catch (final IOException e) {
++            final DiskLruCache disk = mDiskCache;
++            if (disk != null) disk.remove(hashKeyForDisk(key));
++        } catch (IOException | IllegalStateException e) {
+             Log.e(TAG, "remove - " + e);
+         }
+-        flush();
+     }
+ 
+     /**
+@@ -620,18 +594,20 @@
+      * @param pause True to temporarily pause the disk cache, false otherwise.
+      */
+     public void setPauseDiskCache(final boolean pause) {
++        ICacheListener[] listeners = null;
+         synchronized (mPauseLock) {
+             if (mPauseDiskAccess != pause) {
+                 mPauseDiskAccess = pause;
+                 if (!pause) {
+-                    mPauseLock.notify();
+-
+-                    for (ICacheListener listener : mListeners) {
+-                        listener.onCacheUnpaused();
++                    mPauseLock.notifyAll();
++                    synchronized (mListeners) {
++                        listeners = mListeners.toArray(new ICacheListener[0]);
+                     }
+                 }
+             }
+         }
++        // A listener can re-enter the cache. Never invoke it holding the pause lock.
++        if (listeners != null) for (ICacheListener listener : listeners) listener.onCacheUnpaused();
+     }
+ 
+     private void waitUntilUnpaused() {
+@@ -641,7 +617,8 @@
+                     try {
+                         mPauseLock.wait();
+                     } catch (InterruptedException e) {
+-                        // ignored, we'll start waiting again
++                        Thread.currentThread().interrupt();
++                        return;
+                     }
+                 }
+             }
+@@ -656,11 +633,11 @@
+     }
+ 
+     public void addCacheListener(ICacheListener listener) {
+-        mListeners.add(listener);
++        synchronized (mListeners) { mListeners.add(listener); }
+     }
+ 
+     public void removeCacheListener(ICacheListener listener) {
+-        mListeners.remove(listener);
++        synchronized (mListeners) { mListeners.remove(listener); }
+     }
+ 
+     /**
+@@ -811,7 +788,7 @@
+          * Get the size in bytes of a bitmap.
+          */
+         public static final int getBitmapSize(final Bitmap bitmap) {
+-            return bitmap.getByteCount();
++            return bitmap.getAllocationByteCount();
+         }
+ 
+         /**
+diff --git a/src/com/cyanogenmod/eleven/cache/ImageFetcher.java b/src/com/cyanogenmod/eleven/cache/ImageFetcher.java
+--- a/src/com/cyanogenmod/eleven/cache/ImageFetcher.java
++++ b/src/com/cyanogenmod/eleven/cache/ImageFetcher.java
+@@ -16,7 +16,6 @@
+ import android.content.ContentResolver;
+ import android.content.Context;
+ import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+ import android.net.Uri;
+ import android.widget.ImageView;
+ import com.cyanogenmod.eleven.Config;
+@@ -27,18 +26,13 @@
+ import com.cyanogenmod.eleven.widgets.BlurScrimImage;
+ import com.cyanogenmod.eleven.widgets.LetterTileDrawable;
+ 
+-import java.io.FileNotFoundException;
+-import java.io.IOException;
+-import java.io.InputStream;
+ 
+ /**
+  * A subclass of {@link ImageWorker} that fetches images from a URL.
+  */
+ public class ImageFetcher extends ImageWorker {
+ 
+-    private static final int DEFAULT_MAX_IMAGE_HEIGHT = 1024;
+-
+-    private static final int DEFAULT_MAX_IMAGE_WIDTH = 1024;
++
+ 
+     private static ImageFetcher sInstance = null;
+ 
+@@ -57,7 +51,7 @@
+      * @param context The {@link Context} to use
+      * @return A new instance of this class.
+      */
+-    public static final ImageFetcher getInstance(final Context context) {
++    public synchronized static final ImageFetcher getInstance(final Context context) {
+         if (sInstance == null) {
+             sInstance = new ImageFetcher(context.getApplicationContext());
+         }
+@@ -234,89 +228,10 @@
+      * Decode and sample down a {@link Bitmap} from a Uri.
+      *
+      * @param selectedImage Uri of the Image to decode
+-     * @return A {@link Bitmap} sampled down from the original with the same
+-     *         aspect ratio and dimensions that are equal to or greater than the
+-     *         requested width and height
++     * @return A bounded bitmap, or null if the cover is unavailable.
+      */
+     public static Bitmap decodeSampledBitmapFromUri(ContentResolver cr, final Uri selectedImage) {
+-        // First decode with inJustDecodeBounds=true to check dimensions
+-        final BitmapFactory.Options options = new BitmapFactory.Options();
+-        options.inJustDecodeBounds = true;
+-
+-        try {
+-            InputStream input = cr.openInputStream(selectedImage);
+-            BitmapFactory.decodeStream(input, null, options);
+-            input.close();
+-
+-            if (options.outHeight == -1 || options.outWidth == -1) {
+-                return null;
+-            }
+-
+-            // Calculate inSampleSize
+-            options.inSampleSize = calculateInSampleSize(options, DEFAULT_MAX_IMAGE_WIDTH,
+-                    DEFAULT_MAX_IMAGE_HEIGHT);
+-
+-            // Decode bitmap with inSampleSize set
+-            options.inJustDecodeBounds = false;
+-            input = cr.openInputStream(selectedImage);
+-            return BitmapFactory.decodeStream(input, null, options);
+-        } catch (FileNotFoundException e) {
+-            e.printStackTrace();
+-            return null;
+-        } catch (IOException e) {
+-            e.printStackTrace();
+-        }
+-
+-        return null;
+-    }
+-
+-    /**
+-     * Calculate an inSampleSize for use in a
+-     * {@link android.graphics.BitmapFactory.Options} object when decoding
+-     * bitmaps using the decode* methods from {@link BitmapFactory}. This
+-     * implementation calculates the closest inSampleSize that will result in
+-     * the final decoded bitmap having a width and height equal to or larger
+-     * than the requested width and height. This implementation does not ensure
+-     * a power of 2 is returned for inSampleSize which can be faster when
+-     * decoding but results in a larger bitmap which isn't as useful for caching
+-     * purposes.
+-     *
+-     * @param options An options object with out* params already populated (run
+-     *            through a decode* method with inJustDecodeBounds==true
+-     * @param reqWidth The requested width of the resulting bitmap
+-     * @param reqHeight The requested height of the resulting bitmap
+-     * @return The value to be used for inSampleSize
+-     */
+-    public static final int calculateInSampleSize(final BitmapFactory.Options options,
+-                                                  final int reqWidth, final int reqHeight) {
+-        /* Raw height and width of image */
+-        final int height = options.outHeight;
+-        final int width = options.outWidth;
+-        int inSampleSize = 1;
+-
+-        if (height > reqHeight || width > reqWidth) {
+-            if (width > height) {
+-                inSampleSize = Math.round((float)height / (float)reqHeight);
+-            } else {
+-                inSampleSize = Math.round((float)width / (float)reqWidth);
+-            }
+-
+-            // This offers some additional logic in case the image has a strange
+-            // aspect ratio. For example, a panorama may have a much larger
+-            // width than height. In these cases the total pixels might still
+-            // end up being too large to fit comfortably in memory, so we should
+-            // be more aggressive with sample down the image (=larger
+-            // inSampleSize).
+-
+-            final float totalPixels = width * height;
+-
+-            /* More than 2x the requested pixels we'll sample down further */
+-            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+-
+-            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+-                inSampleSize++;
+-            }
+-        }
+-        return inSampleSize;
+-    }
++        return SafeArtwork.uri(cr, selectedImage, SafeArtwork.MAX_EDGE);
++    }
++
+ }
+diff --git a/src/com/cyanogenmod/eleven/cache/ImageWorker.java b/src/com/cyanogenmod/eleven/cache/ImageWorker.java
+--- a/src/com/cyanogenmod/eleven/cache/ImageWorker.java
++++ b/src/com/cyanogenmod/eleven/cache/ImageWorker.java
+@@ -36,7 +36,6 @@
+ 
+ import java.lang.ref.WeakReference;
+ import java.util.Collections;
+-import java.util.HashSet;
+ import java.util.Set;
+ import java.util.concurrent.RejectedExecutionException;
+ 
+@@ -57,7 +56,12 @@
+      * Tracks which images we've tried to download and prevents it from trying again
+      * In the future we might want to throw this into a db
+      */
+-    public static Set<String> sKeys = Collections.synchronizedSet(new HashSet<String>());
++    public static Set<String> sKeys = Collections.synchronizedSet(Collections.newSetFromMap(
++            new java.util.LinkedHashMap<String, Boolean>() {
++                @Override protected boolean removeEldestEntry(java.util.Map.Entry<String, Boolean> e) {
++                    return size() > 512;
++                }
++            }));
+ 
+     /**
+      * Default transition drawable fade time
+@@ -162,31 +166,45 @@
+     public static Bitmap getBitmapInBackground(final Context context, final ImageCache imageCache,
+                                    final String key, final String albumName, final String artistName,
+                                    final long albumId, final ImageType imageType) {
++        return getBitmapInBackground(context, imageCache, key, albumName, artistName,
++                albumId, imageType, SafeArtwork.MAX_EDGE);
++    }
++
++    public static Bitmap getBitmapInBackground(final Context context, final ImageCache imageCache,
++            final String key, final String albumName, final String artistName, final long albumId,
++            final ImageType imageType, final int edge) {
++        if (Thread.currentThread().isInterrupted()) return null;
+         // The result
+         Bitmap bitmap = null;
+ 
+         // First, check the disk cache for the image
+         if (key != null && imageCache != null) {
+-            bitmap = imageCache.getCachedBitmap(key);
++            bitmap = imageCache.getCachedBitmap(key, edge);
++            if (bitmap == null && imageType == ImageType.ALBUM) {
++                String originalKey = ImageFetcher.generateAlbumCacheKey(albumName, artistName);
++                if (originalKey != null && !key.equals(originalKey)) {
++                    bitmap = imageCache.decodeDiskEntry(originalKey, edge);
++                }
++            }
+         }
+ 
+         // Second, if we're fetching artwork, check the device for the image
+         if (bitmap == null && imageType.equals(ImageType.ALBUM) && albumId >= 0
+                 && key != null && imageCache != null) {
+-            bitmap = imageCache.getCachedArtwork(context, key, albumId);
++            bitmap = imageCache.getArtworkFromFile(context, albumId, edge);
+         }
+ 
+         // Third, by now we need to download the image
+-        if (bitmap == null && ApolloUtils.isOnline(context) && !sKeys.contains(key)) {
++        if (!Thread.currentThread().isInterrupted() && bitmap == null && ApolloUtils.isOnline(context) && !sKeys.contains(key)) {
+             // Now define what the artist name, album name, and url are.
+             String url = ImageUtils.processImageUrl(context, artistName, albumName, imageType);
+             if (url != null) {
+-                bitmap = ImageUtils.processBitmap(context, url);
++                bitmap = ImageUtils.processBitmap(context, url, edge);
+             }
+         }
+ 
+         // Fourth, add the new image to the cache
+-        if (bitmap != null && key != null && imageCache != null) {
++        if (!Thread.currentThread().isInterrupted() && bitmap != null && key != null && imageCache != null) {
+             imageCache.addBitmapToCache(key, bitmap);
+         }
+ 
+@@ -288,7 +306,7 @@
+             AsyncTaskContainer asyncTaskContainer = (AsyncTaskContainer)tag;
+             BitmapWorkerTask bitmapWorkerTask = asyncTaskContainer.getBitmapWorkerTask();
+             if (bitmapWorkerTask != null) {
+-                bitmapWorkerTask.cancel(false);
++                bitmapWorkerTask.cancel(true);
+             }
+ 
+             // clear out the tag
+@@ -304,7 +322,9 @@
+         final AsyncTaskContainer asyncTaskContainer = getAsyncTaskContainer(view);
+         if (asyncTaskContainer != null) {
+             // we are trying to reload the same image, return false to indicate no work is needed
+-            if (asyncTaskContainer.getKey().equals(key)) {
++            BitmapWorkerTask task = asyncTaskContainer.getBitmapWorkerTask();
++            if (key != null && key.equals(asyncTaskContainer.getKey()) && task != null
++                    && !task.isCancelled() && task.getStatus() != android.os.AsyncTask.Status.FINISHED) {
+                 return false;
+             }
+ 
+@@ -433,10 +453,15 @@
+      * @param imageType The type of image URL to fetch for.
+      * @param scaleImgToView config option to scale the image to the image view's dimensions
+      */
+-    protected void loadImage(final String key, final String artistName, final String albumName,
++    protected void loadImage(final String sourceKey, final String artistName, final String albumName,
+                              final long albumId, final ImageView imageView,
+                              final ImageType imageType, final boolean scaleImgToView) {
+ 
++        if (imageView == null) return;
++        final String key = sourceKey == null ? null : sourceKey
++                + (imageType == ImageType.ALBUM ? "_safeart_" + SafeArtwork.viewEdge(imageView) : "");
++        // Cancel stale work even when the replacement is a memory-cache hit.
++        final boolean canStart = executePotentialWork(key, imageView);
+         if (key == null || mImageCache == null || imageView == null) {
+             return;
+         }
+@@ -444,6 +469,7 @@
+         // First, check the memory for the image
+         final Bitmap lruBitmap = mImageCache.getBitmapFromMemCache(key);
+         if (lruBitmap != null) {   // Bitmap found in memory cache
++            cancelWork(imageView);
+             // scale image if necessary
+             if (scaleImgToView) {
+                 imageView.setImageBitmap(ImageUtils.scaleBitmapForImageView(lruBitmap, imageView));
+@@ -463,8 +489,7 @@
+                 loadDefaultImage(imageView, imageType, null, key);
+             }
+ 
+-            if (executePotentialWork(key, imageView)
+-                    && imageView != null && !mImageCache.isDiskCachePaused()) {
++            if (canStart && !mImageCache.isDiskCachePaused()) {
+                 Drawable fromDrawable = imageView.getDrawable();
+                 if (fromDrawable == null) {
+                     fromDrawable = mTransparentDrawable;
+@@ -477,10 +502,11 @@
+                 final AsyncTaskContainer asyncTaskContainer = new AsyncTaskContainer(bitmapWorkerTask);
+                 imageView.setTag(asyncTaskContainer);
+                 try {
+-                    ApolloUtils.execute(false, bitmapWorkerTask,
++                    ArtworkExecutor.execute(bitmapWorkerTask,
+                             artistName, albumName, String.valueOf(albumId));
+                 } catch (RejectedExecutionException e) {
+-                    // Executor has exhausted queue space
++                    bitmapWorkerTask.cancel(true);
++                    imageView.setTag(null); // placeholder; a later bind can retry
+                 }
+             }
+         }
+@@ -537,9 +563,10 @@
+             final AsyncTaskContainer asyncTaskContainer = new AsyncTaskContainer(bitmapWorkerTask);
+             imageView.setTag(asyncTaskContainer);
+             try {
+-                ApolloUtils.execute(false, bitmapWorkerTask);
++                ArtworkExecutor.execute(bitmapWorkerTask);
+             } catch (RejectedExecutionException e) {
+-                // Executor has exhausted queue space
++                bitmapWorkerTask.cancel(true);
++                imageView.setTag(null);
+             }
+         }
+     }
+@@ -569,9 +596,10 @@
+             blurScrimImage.setTag(asyncTaskContainer);
+ 
+             try {
+-                ApolloUtils.execute(false, blurWorkerTask, artistName, albumName, String.valueOf(albumId));
++                ArtworkExecutor.execute(blurWorkerTask, artistName, albumName, String.valueOf(albumId));
+             } catch (RejectedExecutionException e) {
+-                // Executor has exhausted queue space, show default artwork
++                blurWorkerTask.cancel(true);
++                blurScrimImage.setTag(null);
+                 blurScrimImage.transitionToDefaultState();
+             }
+         }
+diff --git a/src/com/cyanogenmod/eleven/cache/SafeArtwork.java b/src/com/cyanogenmod/eleven/cache/SafeArtwork.java
+new file mode 100644
+--- /dev/null
++++ b/src/com/cyanogenmod/eleven/cache/SafeArtwork.java
+@@ -0,0 +1,100 @@
++/* Copyright 2026. Licensed under the Apache License, Version 2.0. */
++package com.cyanogenmod.eleven.cache;
++
++import android.content.ContentResolver;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.net.Uri;
++import android.util.Log;
++import android.widget.ImageView;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.concurrent.Semaphore;
++
++/** One boundary for untrusted cover data, including old on-disk cache entries. */
++public final class SafeArtwork {
++    public static final int MAX_EDGE = 1024;
++    private static final Semaphore DECODERS = new Semaphore(2, true);
++    public interface Source { InputStream open() throws IOException; }
++    private SafeArtwork() { }
++
++    public static int viewEdge(ImageView view) {
++        int w = view.getWidth(), h = view.getHeight();
++        if (view.getLayoutParams() != null) {
++            if (w <= 0) w = view.getLayoutParams().width;
++            if (h <= 0) h = view.getLayoutParams().height;
++        }
++        int edge = Math.max(w, h);
++        if (edge <= 0) return MAX_EDGE; // layout is not yet measured
++        int bucket = 128;
++        while (bucket < edge && bucket < MAX_EDGE) bucket <<= 1;
++        return bucket;
++    }
++
++    public static int sample(int width, int height, int requestedEdge) {
++        int edge = Math.max(1, Math.min(MAX_EDGE, requestedEdge));
++        int sample = 1;
++        // long arithmetic and ceiling division also cover extreme aspect ratios.
++        while (((long) width + sample - 1) / sample > edge
++                || ((long) height + sample - 1) / sample > edge) {
++            if (sample >= (1 << 30)) break;
++            sample <<= 1;
++        }
++        return sample;
++    }
++
++    public static Bitmap uri(final ContentResolver resolver, final Uri uri, int edge) {
++        return decode(new Source() {
++            public InputStream open() throws IOException { return resolver.openInputStream(uri); }
++        }, edge);
++    }
++
++    public static Bitmap file(final String path, int edge) {
++        return decode(new Source() {
++            public InputStream open() throws IOException { return new FileInputStream(path); }
++        }, edge);
++    }
++
++    public static Bitmap decode(Source source, int requestedEdge) {
++        boolean acquired = false;
++        try {
++            DECODERS.acquire(); acquired = true;
++            if (Thread.currentThread().isInterrupted()) return null;
++            BitmapFactory.Options options = new BitmapFactory.Options();
++            options.inJustDecodeBounds = true;
++            try (InputStream input = source.open()) {
++                if (input == null) return null;
++                BitmapFactory.decodeStream(input, null, options);
++            }
++            if (options.outWidth <= 0 || options.outHeight <= 0) return null;
++            int edge = Math.max(1, Math.min(MAX_EDGE, requestedEdge));
++            options.inSampleSize = sample(options.outWidth, options.outHeight, edge);
++            options.inJustDecodeBounds = false;
++            options.inScaled = false;
++            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
++            if (Thread.currentThread().isInterrupted()) return null;
++            Bitmap bitmap;
++            try (InputStream input = source.open()) {
++                if (input == null) return null;
++                bitmap = BitmapFactory.decodeStream(input, null, options);
++            }
++            // Never send an unexpectedly large decoder result to Canvas or the cache.
++            if (bitmap != null && (bitmap.getWidth() > edge || bitmap.getHeight() > edge
++                    || bitmap.getAllocationByteCount() > (long) edge * edge * 4)) {
++                bitmap.recycle();
++                return null;
++            }
++            return bitmap;
++        } catch (InterruptedException cancelled) {
++            Thread.currentThread().interrupt();
++        } catch (IOException | RuntimeException failure) {
++            Log.w("ElevenArtwork", "Cover unavailable: " + failure.getClass().getSimpleName());
++        } catch (OutOfMemoryError failure) {
++            Log.w("ElevenArtwork", "Cover allocation failed; using placeholder");
++        } finally {
++            if (acquired) DECODERS.release();
++        }
++        return null;
++    }
++}
+diff --git a/src/com/cyanogenmod/eleven/cache/SimpleBitmapWorkerTask.java b/src/com/cyanogenmod/eleven/cache/SimpleBitmapWorkerTask.java
+--- a/src/com/cyanogenmod/eleven/cache/SimpleBitmapWorkerTask.java
++++ b/src/com/cyanogenmod/eleven/cache/SimpleBitmapWorkerTask.java
+@@ -65,6 +65,7 @@
+         }
+ 
+         final Bitmap bitmap = getBitmapInBackground(params);
++        if (isCancelled() || bitmap == null) return null;
+         if (mScaleImgToView) {
+             Bitmap scaledBitmap = ImageUtils.scaleBitmapForImageView(bitmap, getAttachedImageView());
+             return createImageTransitionDrawable(scaledBitmap);
+diff --git a/src/com/cyanogenmod/eleven/utils/ImageUtils.java b/src/com/cyanogenmod/eleven/utils/ImageUtils.java
+--- a/src/com/cyanogenmod/eleven/utils/ImageUtils.java
++++ b/src/com/cyanogenmod/eleven/utils/ImageUtils.java
+@@ -17,11 +17,11 @@
+ 
+ import android.content.Context;
+ import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+ import android.widget.ImageView;
+ 
+ import com.cyanogenmod.eleven.cache.ImageCache;
+ import com.cyanogenmod.eleven.cache.ImageWorker;
++import com.cyanogenmod.eleven.cache.SafeArtwork;
+ import com.cyanogenmod.eleven.lastfm.ImageSize;
+ import com.cyanogenmod.eleven.lastfm.MusicEntry;
+ 
+@@ -40,9 +40,7 @@
+ 
+     public static final int IO_BUFFER_SIZE_BYTES = 1024;
+ 
+-    private static final int DEFAULT_MAX_IMAGE_HEIGHT = 1024;
+-
+-    private static final int DEFAULT_MAX_IMAGE_WIDTH = 1024;
++
+ 
+     private static AtomicInteger sInteger = new AtomicInteger(0);
+ 
+@@ -98,96 +96,23 @@
+      * @return The processed {@link Bitmap}.
+      */
+     public static Bitmap processBitmap(final Context context, final String url) {
++        return processBitmap(context, url, SafeArtwork.MAX_EDGE);
++    }
++
++    public static Bitmap processBitmap(final Context context, final String url, final int edge) {
+         if (url == null) {
+             return null;
+         }
+         final File file = downloadBitmapToFile(context, url, DEFAULT_HTTP_CACHE_DIR);
+         if (file != null) {
+             // Return a sampled down version
+-            final Bitmap bitmap = decodeSampledBitmapFromFile(file.toString());
+-            file.delete();
+-            if (bitmap != null) {
+-                return bitmap;
+-            }
+-        }
+-        return null;
+-    }
+-
+-    /**
+-     * Decode and sample down a {@link Bitmap} from a file to the requested
+-     * width and height.
+-     *
+-     * @param filename The full path of the file to decode
+-     * @param reqWidth The requested width of the resulting bitmap
+-     * @param reqHeight The requested height of the resulting bitmap
+-     * @return A {@link Bitmap} sampled down from the original with the same
+-     *         aspect ratio and dimensions that are equal to or greater than the
+-     *         requested width and height
+-     */
+-    public static Bitmap decodeSampledBitmapFromFile(final String filename) {
+-
+-        // First decode with inJustDecodeBounds=true to check dimensions
+-        final BitmapFactory.Options options = new BitmapFactory.Options();
+-        options.inJustDecodeBounds = true;
+-        BitmapFactory.decodeFile(filename, options);
+-
+-        // Calculate inSampleSize
+-        options.inSampleSize = calculateInSampleSize(options, DEFAULT_MAX_IMAGE_WIDTH,
+-                DEFAULT_MAX_IMAGE_HEIGHT);
+-
+-        // Decode bitmap with inSampleSize set
+-        options.inJustDecodeBounds = false;
+-        return BitmapFactory.decodeFile(filename, options);
+-    }
+-
+-    /**
+-     * Calculate an inSampleSize for use in a
+-     * {@link android.graphics.BitmapFactory.Options} object when decoding
+-     * bitmaps using the decode* methods from {@link BitmapFactory}. This
+-     * implementation calculates the closest inSampleSize that will result in
+-     * the final decoded bitmap having a width and height equal to or larger
+-     * than the requested width and height. This implementation does not ensure
+-     * a power of 2 is returned for inSampleSize which can be faster when
+-     * decoding but results in a larger bitmap which isn't as useful for caching
+-     * purposes.
+-     *
+-     * @param options An options object with out* params already populated (run
+-     *            through a decode* method with inJustDecodeBounds==true
+-     * @param reqWidth The requested width of the resulting bitmap
+-     * @param reqHeight The requested height of the resulting bitmap
+-     * @return The value to be used for inSampleSize
+-     */
+-    public static final int calculateInSampleSize(final BitmapFactory.Options options,
+-                                                  final int reqWidth, final int reqHeight) {
+-        /* Raw height and width of image */
+-        final int height = options.outHeight;
+-        final int width = options.outWidth;
+-        int inSampleSize = 1;
+-
+-        if (height > reqHeight || width > reqWidth) {
+-            if (width > height) {
+-                inSampleSize = Math.round((float)height / (float)reqHeight);
+-            } else {
+-                inSampleSize = Math.round((float)width / (float)reqWidth);
+-            }
+-
+-            // This offers some additional logic in case the image has a strange
+-            // aspect ratio. For example, a panorama may have a much larger
+-            // width than height. In these cases the total pixels might still
+-            // end up being too large to fit comfortably in memory, so we should
+-            // be more aggressive with sample down the image (=larger
+-            // inSampleSize).
+-
+-            final float totalPixels = width * height;
+-
+-            /* More than 2x the requested pixels we'll sample down further */
+-            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+-
+-            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+-                inSampleSize++;
+-            }
+-        }
+-        return inSampleSize;
++            try {
++                return SafeArtwork.file(file.toString(), edge);
++            } finally {
++                file.delete();
++            }
++        }
++        return null;
+     }
+ 
+     private static String getBestImage(MusicEntry e) {
+@@ -288,7 +213,7 @@
+         int deltaWidth = viewWidth - srcWidth;
+         int deltaHeight = viewHeight - srcHeight;
+ 
+-        if (deltaWidth <= 0 && deltaWidth <= 0)     // nothing to do if src bitmap is bigger than image-view
++        if (viewWidth <= 0 || viewHeight <= 0 || (deltaWidth <= 0 && deltaHeight <= 0))
+             return src;
+ 
+         // scale bitmap along the dimension that is lacking the greatest
+@@ -297,6 +222,8 @@
+         // calculate the new bitmap dimensions
+         int dstHeight = (int) Math.ceil(srcHeight * scale);
+         int dstWidth = (int) Math.ceil(srcWidth * scale);
++        if (dstHeight > SafeArtwork.MAX_EDGE
++                || dstWidth > SafeArtwork.MAX_EDGE) return src;
+         Bitmap scaledBitmap =  Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
+         Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, viewWidth, viewHeight);
+ 
