@@ -1,0 +1,6 @@
+Android 11 v11 搜索回归失败
+
+候选 APK SHA-256 ed0e821583abf8096ffbed0db14365561b9b239c29c79891a4514c4c1e374f24
+96 首合成 MP3。48 次列表滑动后，第一次搜索输入 S 时应用退出。
+原 PID 3628，新 PID 4463。
+AsyncTaskLoader 中的 MediaStore 返回 UnsupportedOperationException。该镜像拒绝 content://media/external/audio/search/fancy/S。

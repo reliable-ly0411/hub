@@ -1,0 +1,98 @@
+{
+  "kind": "compat",
+  "api": 30,
+  "apk_sha256": "ed0e821583abf8096ffbed0db14365561b9b239c29c79891a4514c4c1e374f24",
+  "initial_pid": "3628",
+  "list_swipes": 48,
+  "search_chars": 9,
+  "search_swipes": 2,
+  "searches": 1,
+  "background_round_trips": 0,
+  "sampled": [
+    {
+      "name": "compat/cold",
+      "pid": "3628",
+      "fd": 81,
+      "pss_kib": 65544,
+      "native_heap_alloc_kib": 37764,
+      "dalvik_heap_alloc_kib": 16549,
+      "rss_kib": 173396
+    },
+    {
+      "name": "compat/list-1-1-0",
+      "pid": "3628",
+      "fd": 84,
+      "pss_kib": 51264,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14093,
+      "rss_kib": 174488
+    },
+    {
+      "name": "compat/list-1-1-1",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 50396,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14075,
+      "rss_kib": 174740
+    },
+    {
+      "name": "compat/list-1-0-0",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 50116,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14059,
+      "rss_kib": 174812
+    },
+    {
+      "name": "compat/list-1-0-1",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 49868,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14011,
+      "rss_kib": 174664
+    },
+    {
+      "name": "compat/list-2-1-0",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 50176,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14087,
+      "rss_kib": 174580
+    },
+    {
+      "name": "compat/list-2-1-1",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 50312,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14077,
+      "rss_kib": 174740
+    },
+    {
+      "name": "compat/list-2-0-0",
+      "pid": "3628",
+      "fd": 84,
+      "pss_kib": 50077,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14061,
+      "rss_kib": 174584
+    },
+    {
+      "name": "compat/list-2-0-1",
+      "pid": "3628",
+      "fd": 82,
+      "pss_kib": 49832,
+      "native_heap_alloc_kib": 33968,
+      "dalvik_heap_alloc_kib": 14012,
+      "rss_kib": 174644
+    }
+  ],
+  "expected_process_restarts": 0,
+  "error": "('search-1', '3628', {'name': 'compat/search-1', 'pid': '4463', 'fd': 81, 'pss_kib': 49963, 'native_heap_alloc_kib': 33960, 'dalvik_heap_alloc_kib': 14057, 'rss_kib': 172688})",
+  "final_pid": "4463",
+  "eleven_crash_or_anr": true
+}
