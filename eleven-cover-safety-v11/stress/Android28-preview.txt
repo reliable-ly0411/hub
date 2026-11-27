@@ -1,0 +1,13 @@
+API 28 直接预览格式诊断
+
+候选 APK SHA-256 ed0e821583abf8096ffbed0db14365561b9b239c29c79891a4514c4c1e374f24
+对音乐库未收录的样本，直接从测试文件启动 Eleven 预览。同时以 .ogg 的 Opus 做阳性对照。每项开始前预期重启应用。
+证据包括预览界面、MediaPlayer 解码器状态和错误日志。所有样本均由同一合成音源生成。
+
+曲目 | 编码场景 | 结果
+EraQA02.aiff | AIFF PCM 16-bit big endian | 预览未能播放
+EraQA04.mp2 | MPEG Layer II at 192 kbps | 预览未能播放
+EraQA07.wma | WMA v2 in ASF | 预览未能播放
+EraQA12.m4a | Apple Lossless in M4A | 预览未能播放
+EraQA13.opus | Ogg Opus with .opus extension | 预览启动，观察到解码器处于播放状态
+EraQA14.ogg | Ogg Opus with .ogg extension | 预览启动，观察到解码器处于播放状态
