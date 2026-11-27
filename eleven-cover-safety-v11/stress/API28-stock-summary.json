@@ -1,0 +1,160 @@
+{
+  "kind": "stock",
+  "api": 28,
+  "apk_sha256": "ed0e821583abf8096ffbed0db14365561b9b239c29c79891a4514c4c1e374f24",
+  "initial_pid": "6445",
+  "list_swipes": 144,
+  "search_chars": 130,
+  "search_swipes": 24,
+  "searches": 12,
+  "background_round_trips": 0,
+  "sampled": [
+    {
+      "name": "stock/cold",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 56568,
+      "native_heap_alloc_kib": 35163,
+      "dalvik_heap_alloc_kib": 7297,
+      "rss_kib": 162024
+    },
+    {
+      "name": "stock/list-1-1-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 52725,
+      "native_heap_alloc_kib": 31135,
+      "dalvik_heap_alloc_kib": 6507,
+      "rss_kib": 162200
+    },
+    {
+      "name": "stock/list-1-1-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 51604,
+      "native_heap_alloc_kib": 31474,
+      "dalvik_heap_alloc_kib": 6410,
+      "rss_kib": 162484
+    },
+    {
+      "name": "stock/list-1-0-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 48663,
+      "native_heap_alloc_kib": 30946,
+      "dalvik_heap_alloc_kib": 6426,
+      "rss_kib": 159860
+    },
+    {
+      "name": "stock/list-1-0-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 47899,
+      "native_heap_alloc_kib": 29980,
+      "dalvik_heap_alloc_kib": 6371,
+      "rss_kib": 159336
+    },
+    {
+      "name": "stock/list-2-1-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 49853,
+      "native_heap_alloc_kib": 30885,
+      "dalvik_heap_alloc_kib": 6461,
+      "rss_kib": 160400
+    },
+    {
+      "name": "stock/list-2-1-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 49889,
+      "native_heap_alloc_kib": 31358,
+      "dalvik_heap_alloc_kib": 6420,
+      "rss_kib": 160620
+    },
+    {
+      "name": "stock/list-2-0-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 49577,
+      "native_heap_alloc_kib": 31004,
+      "dalvik_heap_alloc_kib": 6461,
+      "rss_kib": 161328
+    },
+    {
+      "name": "stock/list-2-0-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 48912,
+      "native_heap_alloc_kib": 30331,
+      "dalvik_heap_alloc_kib": 6392,
+      "rss_kib": 160968
+    },
+    {
+      "name": "stock/list-3-1-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 49657,
+      "native_heap_alloc_kib": 30770,
+      "dalvik_heap_alloc_kib": 6438,
+      "rss_kib": 161704
+    },
+    {
+      "name": "stock/list-3-1-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 50657,
+      "native_heap_alloc_kib": 32344,
+      "dalvik_heap_alloc_kib": 6437,
+      "rss_kib": 162664
+    },
+    {
+      "name": "stock/list-3-0-0",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 50201,
+      "native_heap_alloc_kib": 32077,
+      "dalvik_heap_alloc_kib": 6420,
+      "rss_kib": 162464
+    },
+    {
+      "name": "stock/list-3-0-1",
+      "pid": "6445",
+      "fd": 72,
+      "pss_kib": 49053,
+      "native_heap_alloc_kib": 30898,
+      "dalvik_heap_alloc_kib": 6381,
+      "rss_kib": 161864
+    },
+    {
+      "name": "stock/search-1",
+      "pid": "6445",
+      "fd": 75,
+      "pss_kib": 51767,
+      "native_heap_alloc_kib": 32351,
+      "dalvik_heap_alloc_kib": 6818,
+      "rss_kib": 164952
+    },
+    {
+      "name": "stock/search-7",
+      "pid": "6445",
+      "fd": 75,
+      "pss_kib": 52206,
+      "native_heap_alloc_kib": 32837,
+      "dalvik_heap_alloc_kib": 6957,
+      "rss_kib": 165448
+    },
+    {
+      "name": "stock/warm-end",
+      "pid": "6445",
+      "fd": 75,
+      "pss_kib": 52683,
+      "native_heap_alloc_kib": 33063,
+      "dalvik_heap_alloc_kib": 6887,
+      "rss_kib": 165668
+    }
+  ],
+  "expected_process_restarts": 0,
+  "final_pid": "6445",
+  "eleven_crash_or_anr": false
+}
