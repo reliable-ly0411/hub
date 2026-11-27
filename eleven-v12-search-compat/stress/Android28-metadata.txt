@@ -1,0 +1,6 @@
+Android 9 v12 系统媒体卡片封面崩溃
+
+候选 APK SHA-256 ffc077f1455bad00e41c487c7d68cfeedd79b9a7e931f260566618a0ef43bdd9
+分辨率与格式混合的原图压力轨道已完成 96 次列表滑动和 36 次搜索。开始播放时 MusicPlayerHandler 崩溃。
+原 PID 19604，新 PID 21713。
+堆栈从 Eleven.updateMediaSession 到系统 MediaMetadata.Builder.scaleBitmap，再到 Bitmap.createScaledBitmap。异常为 width and height must be > 0。

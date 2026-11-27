@@ -1,0 +1,152 @@
+{
+  "kind": "raw",
+  "api": 28,
+  "apk_sha256": "ffc077f1455bad00e41c487c7d68cfeedd79b9a7e931f260566618a0ef43bdd9",
+  "initial_pid": "19604",
+  "list_swipes": 96,
+  "search_chars": 432,
+  "search_swipes": 0,
+  "searches": 36,
+  "background_round_trips": 0,
+  "sampled": [
+    {
+      "name": "raw/cold",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 48698,
+      "native_heap_alloc_kib": 27660,
+      "dalvik_heap_alloc_kib": 7155,
+      "rss_kib": 158164
+    },
+    {
+      "name": "raw/list-1-1-0",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 68380,
+      "native_heap_alloc_kib": 38130,
+      "dalvik_heap_alloc_kib": 6737,
+      "rss_kib": 173764
+    },
+    {
+      "name": "raw/list-1-1-1",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 60231,
+      "native_heap_alloc_kib": 38769,
+      "dalvik_heap_alloc_kib": 6697,
+      "rss_kib": 174308
+    },
+    {
+      "name": "raw/list-1-0-0",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 60385,
+      "native_heap_alloc_kib": 35831,
+      "dalvik_heap_alloc_kib": 6732,
+      "rss_kib": 169740
+    },
+    {
+      "name": "raw/list-1-0-1",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 53437,
+      "native_heap_alloc_kib": 34682,
+      "dalvik_heap_alloc_kib": 6733,
+      "rss_kib": 166980
+    },
+    {
+      "name": "raw/list-2-1-0",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 60793,
+      "native_heap_alloc_kib": 38304,
+      "dalvik_heap_alloc_kib": 6762,
+      "rss_kib": 175180
+    },
+    {
+      "name": "raw/list-2-1-1",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 55103,
+      "native_heap_alloc_kib": 35973,
+      "dalvik_heap_alloc_kib": 6752,
+      "rss_kib": 168976
+    },
+    {
+      "name": "raw/list-2-0-0",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 62255,
+      "native_heap_alloc_kib": 35511,
+      "dalvik_heap_alloc_kib": 6714,
+      "rss_kib": 173692
+    },
+    {
+      "name": "raw/list-2-0-1",
+      "pid": "19604",
+      "fd": 75,
+      "pss_kib": 55931,
+      "native_heap_alloc_kib": 36190,
+      "dalvik_heap_alloc_kib": 6762,
+      "rss_kib": 168164
+    },
+    {
+      "name": "raw/search-1",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 56443,
+      "native_heap_alloc_kib": 34940,
+      "dalvik_heap_alloc_kib": 7087,
+      "rss_kib": 170968
+    },
+    {
+      "name": "raw/search-7",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 58675,
+      "native_heap_alloc_kib": 35802,
+      "dalvik_heap_alloc_kib": 7346,
+      "rss_kib": 171496
+    },
+    {
+      "name": "raw/search-13",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 59059,
+      "native_heap_alloc_kib": 35973,
+      "dalvik_heap_alloc_kib": 7362,
+      "rss_kib": 171840
+    },
+    {
+      "name": "raw/search-19",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 59428,
+      "native_heap_alloc_kib": 36186,
+      "dalvik_heap_alloc_kib": 7408,
+      "rss_kib": 171876
+    },
+    {
+      "name": "raw/search-25",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 59448,
+      "native_heap_alloc_kib": 36117,
+      "dalvik_heap_alloc_kib": 7386,
+      "rss_kib": 171664
+    },
+    {
+      "name": "raw/search-31",
+      "pid": "19604",
+      "fd": 78,
+      "pss_kib": 59625,
+      "native_heap_alloc_kib": 36493,
+      "dalvik_heap_alloc_kib": 7388,
+      "rss_kib": 172280
+    }
+  ],
+  "expected_process_restarts": 0,
+  "error": "AssertionError: MEDIA SESSION SERVICE (dumpsys media_session)\r\n\r\n2 sessions listeners.\r\nGlobal priority session is com.android.server.telecom/HeadsetMediaButton (userId=0)\r\n  HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton (userId=0)\r\n    ownerPid=1940, ownerUid=1000, userId=0\r\n    package=com.android.server.telecom\r\n    launchIntent=null\r\n    mediaButtonReceiver=null\r\n    active=false\r\n    flags=65537\r\n    rating type=0\r\n    controllers: 0\r\n    state=null\r\n    audioAttrs=AudioAttributes: usage=USAGE_VOICE_COMMUNICATION content=CONTENT_TYPE_SPEECH flags=0x0 tags= bundle=null\r\n    volumeType=1, controlType=2, max=0, current=0\r\n    metadata:size=0, description=null\r\n    queueTitle=null, size=0\r\nUser Records:\r\nRecord for full_user=0\r\n  Volume key long-press listener: null\r\n  Volume key long-press listener package: \r\n  Media key listener: null\r\n  Media key listener package: \r\n  Callback: null\r\n  Last MediaButtonReceiver: null\r\n  Restored MediaButtonReceiver: null\r\n  Media button session is com.cyanogenmod.eleven.standalone/Eleven (userId=0)\r\n  Sessions Stack - have 2 sessions:\r\n    MediaSessionHelper-com.cyanogenmod.eleven.standalone com.cyanogenmod.eleven.standalone/MediaSessionHelpe",
+  "final_pid": "21713",
+  "eleven_crash_or_anr": true
+}
