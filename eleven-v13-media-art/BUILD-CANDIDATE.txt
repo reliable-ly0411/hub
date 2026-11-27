@@ -1,0 +1,4 @@
+Eleven standalone v13 system media artwork candidate, versionCode 13.
+Apply v13 after the v9, v11 and v12 patches. Same local QA signer as v11 and v12. Public v9 in-place upgrade unverified.
+Bound system notification and lock-screen artwork independently of in-app artwork. If Android refuses a bitmap, keep the text in the media session. Original spectrum code stays intact.
+This candidate is being tested. Stage evidence is archived separately.

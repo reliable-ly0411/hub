@@ -1,0 +1,118 @@
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -16,8 +16,8 @@
+  -->
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.cyanogenmod.eleven"
+-    android:versionCode="12"
+-    android:versionName="2.0-cm12.1-standalone.4-search-compat-candidate" >
++    android:versionCode="13"
++    android:versionName="2.0-cm12.1-standalone.5-media-art-candidate" >
+ 
+     <uses-sdk
+         android:minSdkVersion="21"
+diff --git a/src/com/cyanogenmod/eleven/cache/SafeArtwork.java b/src/com/cyanogenmod/eleven/cache/SafeArtwork.java
+--- a/src/com/cyanogenmod/eleven/cache/SafeArtwork.java
++++ b/src/com/cyanogenmod/eleven/cache/SafeArtwork.java
+@@ -15,6 +15,7 @@
+ /** One boundary for untrusted cover data, including old on-disk cache entries. */
+ public final class SafeArtwork {
+     public static final int MAX_EDGE = 1024;
++    private static final int SYSTEM_ART_EDGE = 256;
+     private static final Semaphore DECODERS = new Semaphore(2, true);
+     public interface Source { InputStream open() throws IOException; }
+     private SafeArtwork() { }
+@@ -54,6 +55,26 @@
+         return decode(new Source() {
+             public InputStream open() throws IOException { return new FileInputStream(path); }
+         }, edge);
++    }
++
++    /** Supplies a separate, small bitmap for Android's notification and lock screen. */
++    public static Bitmap copyForSystem(Bitmap source) {
++        if (source == null || source.isRecycled()) return null;
++        int width = source.getWidth();
++        int height = source.getHeight();
++        int longEdge = Math.max(width, height);
++        // Some framework versions truncate the short edge to zero when they rescale art.
++        // An extreme panorama remains available in the app; system artwork is optional.
++        if ((long) Math.min(width, height) * 16 < longEdge) return null;
++        try {
++            if (longEdge <= SYSTEM_ART_EDGE) return source.copy(Bitmap.Config.ARGB_8888, false);
++            float scale = SYSTEM_ART_EDGE / (float) longEdge;
++            return Bitmap.createScaledBitmap(source, Math.max(1, Math.round(width * scale)),
++                    Math.max(1, Math.round(height * scale)), true);
++        } catch (IllegalArgumentException | OutOfMemoryError failure) {
++            Log.w("ElevenArtwork", "Could not prepare media card artwork");
++            return null;
++        }
+     }
+ 
+     public static Bitmap decode(Source source, int requestedEdge) {
+diff --git a/src/com/cyanogenmod/eleven/MusicPlaybackService.java b/src/com/cyanogenmod/eleven/MusicPlaybackService.java
+--- a/src/com/cyanogenmod/eleven/MusicPlaybackService.java
++++ b/src/com/cyanogenmod/eleven/MusicPlaybackService.java
+@@ -63,6 +63,7 @@
+ import com.cyanogenmod.eleven.appwidgets.AppWidgetSmall;
+ import com.cyanogenmod.eleven.cache.ImageCache;
+ import com.cyanogenmod.eleven.cache.ImageFetcher;
++import com.cyanogenmod.eleven.cache.SafeArtwork;
+ import com.cyanogenmod.eleven.provider.MusicPlaybackState;
+ import com.cyanogenmod.eleven.provider.RecentStore;
+ import com.cyanogenmod.eleven.provider.SongPlayCount;
+@@ -1527,18 +1528,7 @@
+         if (what.equals(PLAYSTATE_CHANGED) || what.equals(POSITION_CHANGED)) {
+             mSession.setPlaybackState(playbackState);
+         } else if (what.equals(META_CHANGED) || what.equals(QUEUE_CHANGED)) {
+-            Bitmap albumArt = getAlbumArt(false).getBitmap();
+-            if (albumArt != null) {
+-                // RemoteControlClient wants to recycle the bitmaps thrown at it, so we need
+-                // to make sure not to hand out our cache copy
+-                Bitmap.Config config = albumArt.getConfig();
+-                if (config == null) {
+-                    config = Bitmap.Config.ARGB_8888;
+-                }
+-                albumArt = albumArt.copy(config, false);
+-            }
+-
+-            mSession.setMetadata(new MediaMetadata.Builder()
++            final MediaMetadata.Builder metadata = new MediaMetadata.Builder()
+                     .putString(MediaMetadata.METADATA_KEY_ARTIST, getArtistName())
+                     .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, getAlbumArtistName())
+                     .putString(MediaMetadata.METADATA_KEY_ALBUM, getAlbumName())
+@@ -1546,10 +1536,21 @@
+                     .putLong(MediaMetadata.METADATA_KEY_DURATION, duration())
+                     .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, getQueuePosition() + 1)
+                     .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, getQueue().length)
+-                    .putString(MediaMetadata.METADATA_KEY_GENRE, getGenreName())
+-                    .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART,
+-                            mShowAlbumArtOnLockscreen ? albumArt : null)
+-                    .build());
++                    .putString(MediaMetadata.METADATA_KEY_GENRE, getGenreName());
++            final Bitmap systemArt = mShowAlbumArtOnLockscreen
++                    ? SafeArtwork.copyForSystem(getAlbumArt(false).getBitmap()) : null;
++            if (systemArt == null) {
++                mSession.setMetadata(metadata.build());
++            } else {
++                try {
++                    mSession.setMetadata(metadata.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART,
++                            systemArt).build());
++                } catch (IllegalArgumentException badSystemArtwork) {
++                    Log.w(TAG, "System media session rejected cover; sending text metadata", badSystemArtwork);
++                    mSession.setMetadata(metadata.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART,
++                            null).build());
++                }
++            }
+ 
+             mSession.setPlaybackState(playbackState);
+         }
+@@ -1584,7 +1585,7 @@
+         Notification.Builder builder = android.os.Build.VERSION.SDK_INT >= 26
+                 ? new Notification.Builder(this, "playback") : new Notification.Builder(this);
+         builder.setSmallIcon(R.drawable.ic_notification)
+-                .setLargeIcon(artwork.getBitmap())
++                .setLargeIcon(SafeArtwork.copyForSystem(artwork.getBitmap()))
+                 .setContentIntent(clickIntent)
+                 .setContentTitle(getTrackName())
+                 .setContentText(text)
