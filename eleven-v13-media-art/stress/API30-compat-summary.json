@@ -1,0 +1,170 @@
+{
+  "kind": "compat",
+  "api": 30,
+  "apk_sha256": "e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e",
+  "initial_pid": "10578",
+  "list_swipes": 48,
+  "search_chars": 74,
+  "search_swipes": 28,
+  "searches": 7,
+  "background_round_trips": 5,
+  "sampled": [
+    {
+      "name": "compat/cold",
+      "pid": "10578",
+      "fd": 84,
+      "pss_kib": 49335,
+      "native_heap_alloc_kib": 33324,
+      "dalvik_heap_alloc_kib": 14086,
+      "rss_kib": 173816
+    },
+    {
+      "name": "compat/list-1-1-0",
+      "pid": "10578",
+      "fd": 85,
+      "pss_kib": 50110,
+      "native_heap_alloc_kib": 33836,
+      "dalvik_heap_alloc_kib": 14172,
+      "rss_kib": 174836
+    },
+    {
+      "name": "compat/list-1-1-1",
+      "pid": "10578",
+      "fd": 84,
+      "pss_kib": 50262,
+      "native_heap_alloc_kib": 33836,
+      "dalvik_heap_alloc_kib": 14149,
+      "rss_kib": 175128
+    },
+    {
+      "name": "compat/list-1-0-0",
+      "pid": "10578",
+      "fd": 84,
+      "pss_kib": 50130,
+      "native_heap_alloc_kib": 33836,
+      "dalvik_heap_alloc_kib": 14181,
+      "rss_kib": 175456
+    },
+    {
+      "name": "compat/list-1-0-1",
+      "pid": "10578",
+      "fd": 84,
+      "pss_kib": 50218,
+      "native_heap_alloc_kib": 33836,
+      "dalvik_heap_alloc_kib": 14190,
+      "rss_kib": 175356
+    },
+    {
+      "name": "compat/list-2-1-0",
+      "pid": "10578",
+      "fd": 86,
+      "pss_kib": 50342,
+      "native_heap_alloc_kib": 34092,
+      "dalvik_heap_alloc_kib": 14181,
+      "rss_kib": 175264
+    },
+    {
+      "name": "compat/list-2-1-1",
+      "pid": "10578",
+      "fd": 87,
+      "pss_kib": 50354,
+      "native_heap_alloc_kib": 34092,
+      "dalvik_heap_alloc_kib": 14152,
+      "rss_kib": 175324
+    },
+    {
+      "name": "compat/list-2-0-0",
+      "pid": "10578",
+      "fd": 86,
+      "pss_kib": 50366,
+      "native_heap_alloc_kib": 34092,
+      "dalvik_heap_alloc_kib": 14221,
+      "rss_kib": 175440
+    },
+    {
+      "name": "compat/list-2-0-1",
+      "pid": "10578",
+      "fd": 84,
+      "pss_kib": 50478,
+      "native_heap_alloc_kib": 34092,
+      "dalvik_heap_alloc_kib": 14203,
+      "rss_kib": 175612
+    },
+    {
+      "name": "compat/search-1",
+      "pid": "10578",
+      "fd": 89,
+      "pss_kib": 53395,
+      "native_heap_alloc_kib": 35964,
+      "dalvik_heap_alloc_kib": 15045,
+      "rss_kib": 179464
+    },
+    {
+      "name": "compat/playing",
+      "pid": "10578",
+      "fd": 88,
+      "pss_kib": 67495,
+      "native_heap_alloc_kib": 43864,
+      "dalvik_heap_alloc_kib": 16313,
+      "rss_kib": 188464
+    },
+    {
+      "name": "compat/foreground-1",
+      "pid": "10578",
+      "fd": 89,
+      "pss_kib": 65474,
+      "native_heap_alloc_kib": 44848,
+      "dalvik_heap_alloc_kib": 14598,
+      "rss_kib": 182500
+    },
+    {
+      "name": "compat/foreground-2",
+      "pid": "10578",
+      "fd": 88,
+      "pss_kib": 59754,
+      "native_heap_alloc_kib": 42448,
+      "dalvik_heap_alloc_kib": 14491,
+      "rss_kib": 182124
+    },
+    {
+      "name": "compat/foreground-3",
+      "pid": "10578",
+      "fd": 88,
+      "pss_kib": 59754,
+      "native_heap_alloc_kib": 42448,
+      "dalvik_heap_alloc_kib": 14457,
+      "rss_kib": 181900
+    },
+    {
+      "name": "compat/foreground-4",
+      "pid": "10578",
+      "fd": 89,
+      "pss_kib": 59674,
+      "native_heap_alloc_kib": 42448,
+      "dalvik_heap_alloc_kib": 14458,
+      "rss_kib": 181924
+    },
+    {
+      "name": "compat/foreground-5",
+      "pid": "10578",
+      "fd": 88,
+      "pss_kib": 59751,
+      "native_heap_alloc_kib": 42448,
+      "dalvik_heap_alloc_kib": 14457,
+      "rss_kib": 181964
+    },
+    {
+      "name": "compat/warm-end",
+      "pid": "10578",
+      "fd": 89,
+      "pss_kib": 58539,
+      "native_heap_alloc_kib": 43004,
+      "dalvik_heap_alloc_kib": 15247,
+      "rss_kib": 183680
+    }
+  ],
+  "expected_process_restarts": 0,
+  "media_key_pause_resume": true,
+  "final_pid": "10578",
+  "eleven_crash_or_anr": false
+}
