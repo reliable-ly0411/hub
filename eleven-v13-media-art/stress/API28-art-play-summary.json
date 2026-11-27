@@ -1,0 +1,37 @@
+{
+  "api": 28,
+  "apk_sha256": "e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e",
+  "tracks": [
+    {
+      "query": "StressArt001",
+      "case": "large square JPEG",
+      "from_pid": "22312",
+      "to_pid": "22312",
+      "playing": true,
+      "eleven_crash": false,
+      "framework_resize_error": false,
+      "made_progress": true
+    },
+    {
+      "query": "StressArt003",
+      "case": "16\u00d730000 raw portrait PNG",
+      "from_pid": "22447",
+      "to_pid": "22447",
+      "playing": true,
+      "eleven_crash": false,
+      "framework_resize_error": false,
+      "made_progress": true
+    },
+    {
+      "query": "StressArt011",
+      "case": "30000\u00d716 raw panorama PNG",
+      "from_pid": "22592",
+      "to_pid": "22592",
+      "playing": true,
+      "eleven_crash": false,
+      "framework_resize_error": false,
+      "made_progress": true
+    }
+  ],
+  "eleven_crash_or_anr": false
+}

@@ -1,0 +1,8 @@
+Android 9 横长、竖长和超大方图播放对照
+
+候选 APK SHA-256 e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e
+三项均从 Eleven 搜索结果点播，播放会话显示对应曲目，暂停位置证明进度推进。
+StressArt001 | large square JPEG | PID 22312 → 22312。
+StressArt003 | 16×30000 raw portrait PNG | PID 22447 → 22447。
+StressArt011 | 30000×16 raw panorama PNG | PID 22592 → 22592。
+旧 v12 的竖长图定点对照记录了 MediaMetadata.Builder.scaleBitmap 的零尺寸异常。
