@@ -1,0 +1,3 @@
+Eleven standalone v12 search compatibility candidate, versionCode 12.
+Apply the v9 CM12.1 standalone patch, then the v11 cover safety patch, then the v12 search patch. This APK uses the same local QA certificate as v11. Upgrades from the public v9 signature are not verified.
+On Android 10 and newer, query the public MediaStore audio, artists and albums collections instead of the hidden fancy search URI. Android 9 keeps the legacy route when available. Candidate archived at build stage. Validation is published in subsequent commits.

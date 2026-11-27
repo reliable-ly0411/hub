@@ -1,0 +1,323 @@
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -16,8 +16,8 @@
+  -->
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.cyanogenmod.eleven"
+-    android:versionCode="11"
+-    android:versionName="2.0-cm12.1-standalone.3-cover-safety-candidate" >
++    android:versionCode="12"
++    android:versionName="2.0-cm12.1-standalone.4-search-compat-candidate" >
+ 
+     <uses-sdk
+         android:minSdkVersion="21"
+diff --git a/src/com/cyanogenmod/eleven/ui/activities/SearchActivity.java b/src/com/cyanogenmod/eleven/ui/activities/SearchActivity.java
+--- a/src/com/cyanogenmod/eleven/ui/activities/SearchActivity.java
++++ b/src/com/cyanogenmod/eleven/ui/activities/SearchActivity.java
+@@ -23,6 +23,7 @@
+ import android.content.ServiceConnection;
+ import android.database.Cursor;
+ import android.media.AudioManager;
++import android.os.Build;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.IBinder;
+@@ -68,6 +69,7 @@
+ import com.cyanogenmod.eleven.utils.MusicUtils.ServiceToken;
+ import com.cyanogenmod.eleven.utils.NavUtils;
+ import com.cyanogenmod.eleven.utils.PopupMenuHelper;
++import com.cyanogenmod.eleven.utils.PublicMediaSearch;
+ import com.cyanogenmod.eleven.utils.SectionCreatorUtils;
+ import com.cyanogenmod.eleven.utils.SectionCreatorUtils.IItemCompare;
+ import com.cyanogenmod.eleven.widgets.IPopupMenuCallback;
+@@ -762,125 +764,72 @@
+          * @return the results for that search
+          */
+         protected List<SearchResult> runSearchForType() {
+-            ArrayList<SearchResult> results = new ArrayList<SearchResult>();
+-            Cursor cursor = null;
+-            try {
+-                if (mSearchType == ResultType.Playlist) {
+-                    cursor = makePlaylistSearchCursor(getContext(), mQuery);
++            if (mSearchType == ResultType.Playlist) {
++                return getPlaylistResults(Integer.MAX_VALUE);
++            }
++            List<SearchResult> results = new ArrayList<SearchResult>();
++            try (Cursor cursor = getLegacySearchCursor()) {
++                if (cursor == null) {
++                    return PublicMediaSearch.find(getContext(), mQuery, mSearchType, Integer.MAX_VALUE);
++                }
++                int mimeIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
++                while (cursor.moveToNext()) {
++                    if (ResultType.getResultType(cursor, mimeIndex) == mSearchType) {
++                        SearchResult item = createSearchResult(cursor, mSearchType);
++                        if (item != null) results.add(item);
++                    }
++                }
++            }
++            return results;
++        }
++
++        public List<SearchResult> runGenericSearch() {
++            final int limit = Config.SEARCH_NUM_RESULTS_TO_GET;
++            List<SearchResult> results = getPlaylistResults(limit);
++            try (Cursor cursor = getLegacySearchCursor()) {
++                if (cursor == null) {
++                    for (ResultType type : new ResultType[]{ResultType.Song,
++                            ResultType.Artist, ResultType.Album}) {
++                        results.addAll(PublicMediaSearch.find(getContext(), mQuery, type, limit));
++                    }
+                 } else {
+-                    cursor = ApolloUtils.createSearchQueryCursor(getContext(), mQuery);
+-                }
+-
+-                // pre-cache this index
+-                final int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE);
+-
+-                if (cursor != null && cursor.moveToFirst()) {
+-                    do {
+-                        boolean addResult = true;
+-
+-                        if (mSearchType != ResultType.Playlist) {
+-                            // get the result type
+-                            ResultType type = ResultType.getResultType(cursor, mimeTypeIndex);
+-                            if (type != mSearchType) {
+-                                addResult = false;
+-                            }
+-                        }
+-
+-                        if (addResult) {
+-                            results.add(createSearchResult(cursor, mSearchType));
+-                        }
+-                    } while (cursor.moveToNext());
+-                }
+-
+-            } finally {
+-                if (cursor != null) {
+-                    cursor.close();
+-                    cursor = null;
+-                }
+-            }
+-
+-            return results;
+-        }
+-
+-        /**
+-         * This will run a search given a filter string and return the top NUM_RESULTS_TO_GET per
+-         * type
+-         * @return the results for that search
+-         */
+-        public List<SearchResult> runGenericSearch() {
+-            ArrayList<SearchResult> results = new ArrayList<SearchResult>();
+-            // number of types to query for
+-            final int numTypes = ResultType.getNumTypes();
+-
+-            // number of results we want
+-            final int numResultsNeeded = Config.SEARCH_NUM_RESULTS_TO_GET * numTypes;
+-
+-            // current number of results we have
+-            int numResultsAdded = 0;
+-
+-            // count for each result type
+-            int[] numOfEachType = new int[numTypes];
+-
+-            // search playlists first
+-            Cursor playlistCursor = makePlaylistSearchCursor(getContext(), mQuery);
+-            if (playlistCursor != null && playlistCursor.moveToFirst()) {
+-                do {
+-                    // create the item
+-                    SearchResult item = createSearchResult(playlistCursor, ResultType.Playlist);
+-                    /// add the results
+-                    numResultsAdded++;
+-                    results.add(item);
+-                } while (playlistCursor.moveToNext()
+-                        && numResultsAdded < Config.SEARCH_NUM_RESULTS_TO_GET);
+-
+-                // because we deal with playlists separately,
+-                // just mark that we have the full # of playlists
+-                // so that logic later can quit out early if full
+-                numResultsAdded = Config.SEARCH_NUM_RESULTS_TO_GET;
+-
+-                // close the cursor
+-                playlistCursor.close();
+-                playlistCursor = null;
+-            }
+-
+-            // do fancy audio search
+-            Cursor cursor = ApolloUtils.createSearchQueryCursor(getContext(), mQuery);
+-
+-            // pre-cache this index
+-            final int mimeTypeIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
+-
+-            // walk through the cursor
+-            if (cursor != null && cursor.moveToFirst()) {
+-                do {
+-                    // get the result type
+-                    ResultType type = ResultType.getResultType(cursor, mimeTypeIndex);
+-
+-                    // if we still need this type
+-                    if (numOfEachType[type.ordinal()] < Config.SEARCH_NUM_RESULTS_TO_GET) {
+-                        // get the search result
++                    int mimeIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
++                    int[] counts = new int[ResultType.getNumTypes()];
++                    int needed = 3 * limit;
++                    while (needed > 0 && cursor.moveToNext()) {
++                        ResultType type = ResultType.getResultType(cursor, mimeIndex);
++                        if (type == ResultType.Unknown || type == ResultType.Playlist
++                                || counts[type.ordinal()] >= limit) continue;
+                         SearchResult item = createSearchResult(cursor, type);
+-
+                         if (item != null) {
+-                            // add it
+                             results.add(item);
+-                            numOfEachType[type.ordinal()]++;
+-                            numResultsAdded++;
+-
+-                            // if we have enough then quit
+-                            if (numResultsAdded >= numResultsNeeded) {
+-                                break;
+-                            }
++                            counts[type.ordinal()]++;
++                            needed--;
+                         }
+                     }
+-                } while (cursor.moveToNext());
+-
+-                cursor.close();
+-                cursor = null;
+-            }
+-
+-            // sort our results
++                }
++            }
+             Collections.sort(results, SearchResult.COMPARATOR);
+-
++            return results;
++        }
++
++        private Cursor getLegacySearchCursor() {
++            // Android 10 and newer do not guarantee the private fancy-search URI.
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return null;
++            try {
++                return ApolloUtils.createSearchQueryCursor(getContext(), mQuery);
++            } catch (UnsupportedOperationException unsupportedUri) {
++                return null;
++            }
++        }
++
++        private List<SearchResult> getPlaylistResults(int limit) {
++            List<SearchResult> results = new ArrayList<SearchResult>();
++            try (Cursor cursor = makePlaylistSearchCursor(getContext(), mQuery)) {
++                while (cursor != null && results.size() < limit && cursor.moveToNext()) {
++                    results.add(createSearchResult(cursor, ResultType.Playlist));
++                }
++            }
+             return results;
+         }
+ 
+diff --git a/src/com/cyanogenmod/eleven/utils/PublicMediaSearch.java b/src/com/cyanogenmod/eleven/utils/PublicMediaSearch.java
+new file mode 100644
+--- /dev/null
++++ b/src/com/cyanogenmod/eleven/utils/PublicMediaSearch.java
+@@ -0,0 +1,100 @@
++/* Licensed under the Apache License, Version 2.0. */
++package com.cyanogenmod.eleven.utils;
++
++import android.content.Context;
++import android.database.Cursor;
++import android.net.Uri;
++import android.provider.BaseColumns;
++import android.provider.MediaStore.Audio.Albums;
++import android.provider.MediaStore.Audio.Artists;
++import android.provider.MediaStore.Audio.Media;
++
++import com.cyanogenmod.eleven.model.SearchResult;
++import com.cyanogenmod.eleven.model.SearchResult.ResultType;
++
++import java.util.ArrayList;
++import java.util.List;
++
++/** Searches the public MediaStore collections on providers without the old fancy URI. */
++public final class PublicMediaSearch {
++    private PublicMediaSearch() { }
++
++    public static List<SearchResult> find(Context context, String query, ResultType type, int limit) {
++        List<SearchResult> results = new ArrayList<SearchResult>();
++        if (query == null || query.trim().isEmpty() || limit <= 0) return results;
++        Uri uri;
++        String[] projection;
++        String[] searchable;
++        String sort;
++        StringBuilder selection = new StringBuilder();
++        switch (type) {
++            case Song:
++                uri = Media.EXTERNAL_CONTENT_URI;
++                projection = new String[]{BaseColumns._ID, Media.TITLE, Media.ARTIST, Media.ALBUM,
++                        Media.ALBUM_ID};
++                searchable = new String[]{Media.TITLE, Media.ARTIST, Media.ALBUM};
++                sort = Media.DEFAULT_SORT_ORDER;
++                selection.append(Media.IS_MUSIC).append("=1");
++                break;
++            case Artist:
++                uri = Artists.EXTERNAL_CONTENT_URI;
++                projection = new String[]{BaseColumns._ID, Artists.ARTIST, Artists.NUMBER_OF_ALBUMS,
++                        Artists.NUMBER_OF_TRACKS};
++                searchable = new String[]{Artists.ARTIST};
++                sort = Artists.DEFAULT_SORT_ORDER;
++                break;
++            case Album:
++                uri = Albums.EXTERNAL_CONTENT_URI;
++                projection = new String[]{BaseColumns._ID, Albums.ALBUM, Albums.ARTIST,
++                        Albums.NUMBER_OF_SONGS};
++                searchable = new String[]{Albums.ALBUM, Albums.ARTIST};
++                sort = Albums.DEFAULT_SORT_ORDER;
++                break;
++            default:
++                return results;
++        }
++
++        List<String> arguments = new ArrayList<String>();
++        for (String word : query.trim().split("\\s+")) {
++            if (selection.length() > 0) selection.append(" AND ");
++            selection.append('(');
++            String match = "%" + word.replace("\\", "\\\\").replace("%", "\\%")
++                    .replace("_", "\\_") + "%";
++            for (int i = 0; i < searchable.length; i++) {
++                if (i > 0) selection.append(" OR ");
++                selection.append(searchable[i]).append(" LIKE ? ESCAPE '\\'");
++                arguments.add(match);
++            }
++            selection.append(')');
++        }
++
++        try (Cursor cursor = MediaStoreQuery.query(context.getContentResolver(), uri, projection,
++                selection.toString(), arguments.toArray(new String[arguments.size()]), sort)) {
++            if (cursor == null) return results;
++            while (results.size() < limit && cursor.moveToNext()) {
++                SearchResult result = new SearchResult();
++                result.mType = type;
++                result.mId = cursor.getLong(0);
++                result.mAlbumId = -1;
++                if (type == ResultType.Song) {
++                    result.mTitle = cursor.getString(1);
++                    result.mArtist = cursor.getString(2);
++                    result.mAlbum = cursor.getString(3);
++                    if (!cursor.isNull(4)) result.mAlbumId = cursor.getLong(4);
++                } else if (type == ResultType.Artist) {
++                    result.mArtist = cursor.getString(1);
++                    result.mAlbumCount = cursor.getInt(2);
++                    result.mSongCount = cursor.getInt(3);
++                } else {
++                    result.mAlbum = cursor.getString(1);
++                    result.mArtist = cursor.getString(2);
++                    result.mSongCount = cursor.getInt(3);
++                    result.mAlbumId = result.mId;
++                }
++                if (result.mTitle == null && type == ResultType.Song) continue;
++                results.add(result);
++            }
++        }
++        return results;
++    }
++}
