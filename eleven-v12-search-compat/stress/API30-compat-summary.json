@@ -1,0 +1,171 @@
+{
+  "kind": "compat",
+  "api": 30,
+  "apk_sha256": "ffc077f1455bad00e41c487c7d68cfeedd79b9a7e931f260566618a0ef43bdd9",
+  "initial_pid": "4753",
+  "list_swipes": 48,
+  "search_chars": 74,
+  "search_swipes": 28,
+  "searches": 7,
+  "background_round_trips": 5,
+  "sampled": [
+    {
+      "name": "compat/cold",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 48204,
+      "native_heap_alloc_kib": 33456,
+      "dalvik_heap_alloc_kib": 13933,
+      "rss_kib": 170024
+    },
+    {
+      "name": "compat/list-1-1-0",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 49666,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14060,
+      "rss_kib": 174244
+    },
+    {
+      "name": "compat/list-1-1-1",
+      "pid": "4753",
+      "fd": 81,
+      "pss_kib": 49742,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14044,
+      "rss_kib": 174616
+    },
+    {
+      "name": "compat/list-1-0-0",
+      "pid": "4753",
+      "fd": 84,
+      "pss_kib": 49617,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14028,
+      "rss_kib": 174516
+    },
+    {
+      "name": "compat/list-1-0-1",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 49373,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 13981,
+      "rss_kib": 174640
+    },
+    {
+      "name": "compat/list-2-1-0",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 49737,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14054,
+      "rss_kib": 174576
+    },
+    {
+      "name": "compat/list-2-1-1",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 49881,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14047,
+      "rss_kib": 174512
+    },
+    {
+      "name": "compat/list-2-0-0",
+      "pid": "4753",
+      "fd": 82,
+      "pss_kib": 49649,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 14061,
+      "rss_kib": 174544
+    },
+    {
+      "name": "compat/list-2-0-1",
+      "pid": "4753",
+      "fd": 81,
+      "pss_kib": 49393,
+      "native_heap_alloc_kib": 33712,
+      "dalvik_heap_alloc_kib": 13982,
+      "rss_kib": 174644
+    },
+    {
+      "name": "compat/search-1",
+      "pid": "4753",
+      "fd": 87,
+      "pss_kib": 51241,
+      "native_heap_alloc_kib": 35072,
+      "dalvik_heap_alloc_kib": 14832,
+      "rss_kib": 177700
+    },
+    {
+      "name": "compat/playing",
+      "pid": "4753",
+      "fd": 88,
+      "pss_kib": 67951,
+      "native_heap_alloc_kib": 43148,
+      "dalvik_heap_alloc_kib": 16144,
+      "rss_kib": 183768
+    },
+    {
+      "name": "compat/foreground-1",
+      "pid": "4753",
+      "fd": 88,
+      "pss_kib": 61630,
+      "native_heap_alloc_kib": 41400,
+      "dalvik_heap_alloc_kib": 15007,
+      "rss_kib": 181484
+    },
+    {
+      "name": "compat/foreground-2",
+      "pid": "4753",
+      "fd": 88,
+      "pss_kib": 59525,
+      "native_heap_alloc_kib": 40968,
+      "dalvik_heap_alloc_kib": 14903,
+      "rss_kib": 181748
+    },
+    {
+      "name": "compat/foreground-3",
+      "pid": "4753",
+      "fd": 89,
+      "pss_kib": 59497,
+      "native_heap_alloc_kib": 40968,
+      "dalvik_heap_alloc_kib": 14904,
+      "rss_kib": 181580
+    },
+    {
+      "name": "compat/foreground-4",
+      "pid": "4753",
+      "fd": 89,
+      "pss_kib": 59469,
+      "native_heap_alloc_kib": 40968,
+      "dalvik_heap_alloc_kib": 14935,
+      "rss_kib": 181356
+    },
+    {
+      "name": "compat/foreground-5",
+      "pid": "4753",
+      "fd": 89,
+      "pss_kib": 59497,
+      "native_heap_alloc_kib": 40968,
+      "dalvik_heap_alloc_kib": 14904,
+      "rss_kib": 181268
+    },
+    {
+      "name": "compat/warm-end",
+      "pid": "4753",
+      "fd": 90,
+      "pss_kib": 64934,
+      "native_heap_alloc_kib": 43148,
+      "dalvik_heap_alloc_kib": 16473,
+      "rss_kib": 185352
+    }
+  ],
+  "expected_process_restarts": 0,
+  "media_key_pause_resume": true,
+  "final_pid": "4753",
+  "eleven_crash_or_anr": false,
+  "event_buffer_note": "Only the identical saved v11 PID 3628 crash appears in the event buffer. Its timestamp predates this v12 run. Crash buffer is empty and v12 PID 4753 is stable."
+}
