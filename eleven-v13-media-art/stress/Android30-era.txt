@@ -1,0 +1,24 @@
+API 30 年代标签与音频格式兼容矩阵
+
+候选 APK SHA-256 e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e
+同一合成音源生成 16 个样本。12 个已从 Eleven 搜索结果启动，MediaSession 确认播放并且暂停时进度已推进。0 个未进入系统音乐库，4 个已进入音乐库但未验证播放。
+起止 PID 13456 → 13456，崩溃和 ANR 日志未见 Eleven 条目。
+年份来自文件标签和 MediaStore 字段。年代标记代表兼容场景，音源是合成样本。未入库结果仅适用于本次模拟器镜像。
+
+曲目 | 请求年份 | MediaStore 年份 | 编码场景 | 结果
+EraQA01.wav | 1958 | — | PCM 16-bit mono 22.05 kHz | 播放且进度推进
+EraQA02.aiff | 1976 | — | AIFF PCM 16-bit big endian | 入库，播放未验证
+EraQA03.wav | 1986 | — | CD-rate WAV PCM 16-bit | 播放且进度推进
+EraQA04.mp2 | 1993 | — | MPEG Layer II at 192 kbps | 入库，播放未验证
+EraQA05.mp3 | 1997 | 1997 | MP3 ID3v1 only, 32 kbps mono | 播放且进度推进
+EraQA06.mp3 | 2001 | 2001 | MP3 ID3v2.3 CBR with Chinese title | 播放且进度推进
+EraQA07.wma | 2002 | — | WMA v2 in ASF | 入库，播放未验证
+EraQA08.ogg | 2005 | — | Ogg Vorbis | 播放且进度推进
+EraQA09.m4a | 2007 | 2007 | AAC-LC in M4A | 播放且进度推进
+EraQA10.aac | 2009 | — | AAC-LC raw ADTS | 播放且进度推进
+EraQA11.flac | 2010 | — | FLAC 16-bit 44.1 kHz | 播放且进度推进
+EraQA12.m4a | 2013 | 2013 | Apple Lossless in M4A | 入库，播放未验证
+EraQA13.opus | 2016 | — | Ogg Opus with .opus extension | 播放且进度推进
+EraQA14.ogg | 2016 | — | Ogg Opus with .ogg extension | 播放且进度推进
+EraQA15.flac | 2023 | — | FLAC 24-bit 96 kHz | 播放且进度推进
+EraQA16.mp3 | 2024 | — | MP3 ID3v2.4 VBR with Chinese title | 播放且进度推进
