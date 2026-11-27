@@ -1,0 +1,58 @@
+Eleven 切出与切回复测 · GPD · 2026-11-27
+
+离线 Android 9 / 11 独立模拟器，原签名 v9 和内部 v13 使用同一首约 4 分钟的合成 MP3。
+用 Eleven 自身的 MediaSession 状态和暂停时的实际播放位置验证进度。普通切回通过要求恢复/继续后进度超过 500 ms。PID 用于区分继续使用原进程和重新启动。
+
+v9 / Android 9 · 903f0fd6201b5d313b3a9413e886064ea26272a8f7fad09d463e4d710a8a5831
+01-launcher-playing | 离开 4 秒 | PID 5357→5357 | 进度 +6709 ms | 通过
+02-recents-playing | 离开 4 秒 | PID 5357→5357 | 进度 +8516 ms | 通过
+03-recents-paused | 离开 4 秒 | PID 5357→5357 | 进度 +1306 ms | 通过
+04-settings-playing | 离开 5 秒 | PID 5357→5357 | 进度 +8262 ms | 通过
+05-settings-paused | 离开 5 秒 | PID 5357→5357 | 进度 +1066 ms | 通过
+06-lock-playing | 离开 5 秒 | PID 5357→5357 | 进度 +8514 ms | 通过
+07-lock-paused | 离开 5 秒 | PID 5357→5357 | 进度 +978 ms | 通过
+08-launcher-paused | 离开 30 秒 | PID 5357→5357 | 进度 +1149 ms | 通过
+崩溃或 ANR 证据 无。
+全屏播放器暂停后切回 | PID 6426→6426 | 按全屏播放键后推进 1291 ms。
+音频焦点由 com.google.android.music 接管后切回 | PID 6700→6700 | 原进程恢复并推进 3929 ms。
+
+v9 / Android 11 · 903f0fd6201b5d313b3a9413e886064ea26272a8f7fad09d463e4d710a8a5831
+01-launcher-playing | 离开 4 秒 | PID 2385→2385 | 进度 +5570 ms | 通过
+02-recents-playing | 离开 4 秒 | PID 2385→2385 | 进度 +8222 ms | 通过
+03-recents-paused | 离开 4 秒 | PID 2385→2385 | 进度 +1563 ms | 通过
+04-settings-playing | 离开 5 秒 | PID 2385→2385 | 进度 +5968 ms | 通过
+05-settings-paused | 离开 5 秒 | PID 2385→2385 | 进度 +1691 ms | 通过
+06-lock-playing | 离开 5 秒 | PID 2385→2385 | 进度 +7967 ms | 通过
+07-lock-paused | 离开 5 秒 | PID 2385→2385 | 进度 +1672 ms | 通过
+08-launcher-paused | 离开 30 秒 | PID 2385→2385 | 进度 +1741 ms | 通过
+崩溃或 ANR 证据 无。
+全屏播放器暂停后切回 | PID 3463→3463 | 按全屏播放键后推进 1882 ms。
+音频焦点由 com.android.music 接管后切回 | PID 5738→5738 | 原进程恢复并推进 3487 ms。
+
+v13 / Android 9 · e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e
+01-launcher-playing | 离开 4 秒 | PID 7204→7204 | 进度 +6941 ms | 通过
+02-recents-playing | 离开 4 秒 | PID 7204→7204 | 进度 +8078 ms | 通过
+03-recents-paused | 离开 4 秒 | PID 7204→7204 | 进度 +1188 ms | 通过
+04-settings-playing | 离开 5 秒 | PID 7204→7204 | 进度 +8513 ms | 通过
+05-settings-paused | 离开 5 秒 | PID 7204→7204 | 进度 +1159 ms | 通过
+06-lock-playing | 离开 5 秒 | PID 7204→7204 | 进度 +8302 ms | 通过
+07-lock-paused | 离开 5 秒 | PID 7204→7204 | 进度 +1296 ms | 通过
+08-launcher-paused | 离开 30 秒 | PID 7204→7204 | 进度 +1267 ms | 通过
+崩溃或 ANR 证据 无。
+全屏播放器暂停后切回 | PID 8093→8093 | 按全屏播放键后推进 1449 ms。
+音频焦点由 com.google.android.music 接管后切回 | PID 8375→8375 | 原进程恢复并推进 3697 ms。
+
+v13 / Android 11 · e12920cd65514a5bdbbb6e36a0694df7b4ad044ebd4542981d96473ed914188e
+01-launcher-playing | 离开 4 秒 | PID 4149→4149 | 进度 +6470 ms | 通过
+02-recents-playing | 离开 4 秒 | PID 4149→4149 | 进度 +8307 ms | 通过
+03-recents-paused | 离开 4 秒 | PID 4149→4149 | 进度 +1797 ms | 通过
+04-settings-playing | 离开 5 秒 | PID 4149→4149 | 进度 +6224 ms | 通过
+05-settings-paused | 离开 5 秒 | PID 4149→4149 | 进度 +1969 ms | 通过
+06-lock-playing | 离开 5 秒 | PID 4149→4149 | 进度 +6955 ms | 通过
+07-lock-paused | 离开 5 秒 | PID 4149→4149 | 进度 +1680 ms | 通过
+08-launcher-paused | 离开 30 秒 | PID 4149→4149 | 进度 +1907 ms | 通过
+崩溃或 ANR 证据 无。
+全屏播放器暂停后切回 | PID 5134→5134 | 按全屏播放键后推进 1873 ms。
+音频焦点由 com.android.music 接管后切回 | PID 5456→5456 | 原进程恢复并推进 4281 ms。
+
+范围：切出为 Home、最近任务、系统设置和短时锁屏。没有模拟系统回收进程、长时间后台或手机厂商的省电管理。未接触手机数据，未验证扬声器实听。
